@@ -1,0 +1,453 @@
+/* ============================================
+   NALA AIRCON - PAGE TRANSITION LOADING
+   Animasi loading saat berpindah antar modul
+   ============================================ */
+
+/* Page Loader Overlay */
+.page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.page-loader.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Main Loader Container */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* AC Unit Loader Animation */
+.ac-loader {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+/* AC Unit Body */
+.ac-unit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 50px;
+    background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-radius: 8px;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.2),
+        inset 0 2px 0 rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+}
+
+.ac-unit::before {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 10px;
+    right: 10px;
+    height: 15px;
+    background: linear-gradient(90deg, 
+        #cbd5e1 0%, #94a3b8 25%, #cbd5e1 50%, #94a3b8 75%, #cbd5e1 100%);
+    background-size: 20px 100%;
+    border-radius: 2px;
+    animation: ac-vent 0.5s linear infinite;
+}
+
+@keyframes ac-vent {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 0; }
+}
+
+/* AC LED Indicator */
+.ac-led {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #22c55e;
+    animation: led-blink 1s ease infinite;
+}
+
+@keyframes led-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Cool Air Particles */
+.air-particles {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+}
+
+.air-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(59, 130, 246, 0.6);
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: air-flow 1.5s ease-out infinite;
+}
+
+.air-particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.air-particle:nth-child(2) { left: 30%; animation-delay: 0.2s; }
+.air-particle:nth-child(3) { left: 50%; animation-delay: 0.4s; }
+.air-particle:nth-child(4) { left: 70%; animation-delay: 0.6s; }
+.air-particle:nth-child(5) { left: 90%; animation-delay: 0.8s; }
+
+@keyframes air-flow {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(40px) scale(0.3);
+        opacity: 0;
+    }
+}
+
+/* Circular Progress Ring */
+.progress-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110px;
+    height: 110px;
+}
+
+.progress-ring svg {
+    transform: rotate(-90deg);
+    width: 110px;
+    height: 110px;
+}
+
+.progress-ring circle {
+    fill: none;
+    stroke-width: 3;
+}
+
+.progress-ring .bg {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+
+.progress-ring .progress {
+    stroke: #3b82f6;
+    stroke-linecap: round;
+    stroke-dasharray: 314;
+    stroke-dashoffset: 314;
+    animation: progress-spin 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-spin {
+    0% {
+        stroke-dashoffset: 314;
+        transform: rotate(0deg);
+    }
+    50% {
+        stroke-dashoffset: 78;
+    }
+    100% {
+        stroke-dashoffset: 314;
+        transform: rotate(360deg);
+    }
+}
+
+/* Snowflake Spinner (Alternative) */
+.snowflake-spinner {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    animation: snowflake-rotate 3s linear infinite;
+}
+
+.snowflake-spinner svg {
+    width: 100%;
+    height: 100%;
+    stroke: #60a5fa;
+    stroke-width: 1.5;
+    fill: none;
+}
+
+@keyframes snowflake-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loading Text */
+.loader-text {
+    color: #f1f5f9;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.loader-text .module-name {
+    color: #60a5fa;
+    font-weight: 600;
+}
+
+/* Loading Dots Animation */
+.loading-dots {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.loading-dots span {
+    width: 6px;
+    height: 6px;
+    background: #60a5fa;
+    border-radius: 50%;
+    animation: dot-bounce 1.4s ease-in-out infinite both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+@keyframes dot-bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Progress Bar (Bottom) */
+.loader-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.loader-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd, #60a5fa, #3b82f6);
+    background-size: 200% 100%;
+    animation: progress-slide 1.5s ease infinite;
+}
+
+@keyframes progress-slide {
+    0% {
+        width: 0%;
+        background-position: 0% 0%;
+    }
+    50% {
+        width: 70%;
+        background-position: 100% 0%;
+    }
+    100% {
+        width: 100%;
+        background-position: 0% 0%;
+    }
+}
+
+/* ===========================================
+   ALTERNATIVE LOADER STYLES
+   =========================================== */
+
+/* Style 2: Pulse Loader */
+.pulse-loader {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.pulse-loader .pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 50%;
+    animation: pulse-expand 1.5s ease-out infinite;
+}
+
+.pulse-loader .pulse:nth-child(2) { animation-delay: 0.5s; }
+.pulse-loader .pulse:nth-child(3) { animation-delay: 1s; }
+
+.pulse-loader .center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pulse-loader .center svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    fill: none;
+    stroke-width: 2;
+}
+
+@keyframes pulse-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Style 3: Cube Loader */
+.cube-loader {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    perspective: 120px;
+}
+
+.cube-loader .cube {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    transform-style: preserve-3d;
+    animation: cube-rotate 1.5s ease-in-out infinite;
+}
+
+.cube-loader .face {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+}
+
+.cube-loader .face.front { transform: translateZ(30px); }
+.cube-loader .face.back { transform: rotateY(180deg) translateZ(30px); }
+
+@keyframes cube-rotate {
+    0% { transform: rotateX(0deg) rotateY(0deg); }
+    25% { transform: rotateX(90deg) rotateY(0deg); }
+    50% { transform: rotateX(90deg) rotateY(90deg); }
+    75% { transform: rotateX(180deg) rotateY(90deg); }
+    100% { transform: rotateX(180deg) rotateY(180deg); }
+}
+
+/* ===========================================
+   PAGE TRANSITION EFFECTS
+   =========================================== */
+
+/* Fade transition for main content */
+.main-content {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.main-content.transitioning {
+    opacity: 0.5;
+    transform: scale(0.99);
+    pointer-events: none;
+}
+
+/* Slide in animation for new page */
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-enter {
+    animation: slide-in-up 0.4s ease forwards;
+}
+
+/* ===========================================
+   SKELETON LOADING (Optional)
+   =========================================== */
+
+.skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease infinite;
+    border-radius: 8px;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 40%;
+    margin-bottom: 16px;
+}
+
+.skeleton-card {
+    height: 120px;
+    margin-bottom: 16px;
+}
