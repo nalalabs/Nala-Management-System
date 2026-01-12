@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financing - Nala Aircon</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif}
+        .main-content{margin-left:260px;min-height:100vh;transition:margin .3s}
+        .page-header{background:linear-gradient(135deg,#059669 0%,#10b981 100%);color:white;padding:2rem;border-radius:0 0 1.5rem 1.5rem;margin:-1.5rem -1.5rem 1.5rem}
+        .page-header h1{font-weight:700;margin-bottom:.25rem}
+        .stat-card{background:white;border-radius:1rem;padding:1.5rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);position:relative;overflow:hidden;transition:all .2s}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+        .stat-card.income::before{background:#10b981}
+        .stat-card.expense::before{background:#ef4444}
+        .stat-card.balance::before{background:#3b82f6}
+        .stat-card.kasbon::before{background:#f59e0b}
+        .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
+        .stat-icon.income{background:#d1fae5;color:#059669}
+        .stat-icon.expense{background:#fee2e2;color:#dc2626}
+        .stat-icon.balance{background:#dbeafe;color:#2563eb}
+        .stat-icon.kasbon{background:#fef3c7;color:#d97706}
+        .stat-value{font-size:1.5rem;font-weight:700;color:#1e293b}
+        .stat-label{color:#64748b;font-size:.875rem}
+        .nav-pills .nav-link{color:#64748b;font-weight:500;padding:.75rem 1.25rem;border-radius:.5rem;font-size:.875rem}
+        .nav-pills .nav-link:hover{background:#f1f5f9}
+        .nav-pills .nav-link.active{background:linear-gradient(135deg,#059669,#10b981);color:white}
+        .trans-item{background:white;border-radius:.75rem;padding:1rem;margin-bottom:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;align-items:center;gap:1rem;transition:all .2s}
+        .trans-item:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+        .trans-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .trans-icon.in{background:#d1fae5;color:#059669}
+        .trans-icon.out{background:#fee2e2;color:#dc2626}
+        .trans-info{flex:1;min-width:0}
+        .trans-title{font-weight:600;color:#1e293b;margin-bottom:.25rem}
+        .trans-meta{font-size:.75rem;color:#94a3b8}
+        .trans-amount{font-weight:600;font-size:1rem;white-space:nowrap}
+        .trans-amount.in{color:#059669}
+        .trans-amount.out{color:#dc2626}
+        .empty-state{text-align:center;padding:3rem;color:#94a3b8}
+        .kasbon-card{background:white;border-radius:1rem;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:1rem}
+        .alert-rules{background:#fef3c7;border:1px solid #fcd34d;border-radius:.75rem;padding:1rem}
+        .tab-content>.tab-pane{display:none}
+        .tab-content>.tab-pane.active{display:block}
+        @media(max-width:991px){.main-content{margin-left:0}}
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="sidebar-header"><a href="../index.html" class="sidebar-logo"><div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg></div><div class="sidebar-logo-text"><span class="sidebar-logo-title">Nala Aircon</span><span class="sidebar-logo-subtitle">Management System</span></div></a></div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><span class="nav-section-title">Menu Utama</span><ul><li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li></ul></div>
+                <div class="nav-section"><span class="nav-section-title">Modul</span><ul>
+                    <li class="nav-item"><a href="freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                    <li class="nav-item"><a href="financing.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="nav-text">Financing</span></a></li>
+                    <li class="nav-item"><a href="inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                    <li class="nav-item"><a href="absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                    <li class="nav-item"><a href="database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span><span class="nav-text">Database</span></a></li>
+                    <li class="nav-item"><a href="kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                    <li class="nav-item"><a href="marketplace.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                </ul></div>
+                <div class="nav-section"><span class="nav-section-title">Laporan</span><ul><li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Laporan</span></a></li></ul></div>
+                <div class="nav-section"><span class="nav-section-title">Pengaturan</span><ul><li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/></svg></span><span class="nav-text">Pengaturan</span></a></li></ul></div>
+            </nav>
+            <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-user-avatar">AD</div><div class="sidebar-user-info"><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Admin</span></div></div></div>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="p-4">
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><h1><i class="bi bi-wallet2 me-2"></i>Financing</h1><p class="mb-0 opacity-75">Kelola keuangan dan kas perusahaan</p></div>
+                        <button class="btn btn-light" onclick="loadFinancingData()"><i class="bi bi-arrow-clockwise"></i></button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card income">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div><div class="stat-label">Total Pemasukan</div><div class="stat-value text-success" id="totalIncome">Rp 0</div><small class="text-muted">Dari proyek selesai</small></div>
+                                <div class="stat-icon income"><i class="bi bi-arrow-down-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card expense">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div><div class="stat-label">Total Pengeluaran</div><div class="stat-value text-danger" id="totalExpense">Rp 0</div><small class="text-muted">Bulan ini</small></div>
+                                <div class="stat-icon expense"><i class="bi bi-arrow-up-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card balance">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div><div class="stat-label">Saldo Bersih</div><div class="stat-value text-primary" id="netBalance">Rp 0</div><small class="text-muted">Periode ini</small></div>
+                                <div class="stat-icon balance"><i class="bi bi-cash-stack"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card kasbon">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div><div class="stat-label">Total Kasbon Aktif</div><div class="stat-value text-warning" id="totalKasbon">Rp 0</div><small class="text-muted" id="kasbonCount">0 teknisi</small></div>
+                                <div class="stat-icon kasbon"><i class="bi bi-credit-card"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <ul class="nav nav-pills" id="financeTabs">
+                                <li class="nav-item"><a class="nav-link active" href="#" data-tab="transaksi">Transaksi</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="pemasukan">Pemasukan</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="pengeluaran">Pengeluaran</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="kasbon">Kasbon</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="uangmakan">Uang Makan</a></li>
+                            </ul>
+                            <div id="tabActions">
+                                <button class="btn btn-danger btn-sm" onclick="openAddExpenseModal()"><i class="bi bi-plus-lg me-1"></i>Tambah Pengeluaran</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <div id="tab-transaksi" class="tab-pane active">
+                        <div id="transactionList"><div class="empty-state"><i class="bi bi-hourglass-split fs-1"></i><p class="mt-2">Memuat...</p></div></div>
+                    </div>
+                    <div id="tab-pemasukan" class="tab-pane">
+                        <div class="alert alert-info d-flex gap-3 mb-4"><i class="bi bi-info-circle fs-4"></i><div>Pemasukan <strong>otomatis tercatat</strong> dari modul <strong>KPI</strong> saat proyek selesai. Tidak perlu input manual.</div></div>
+                        <div id="incomeList"><div class="empty-state"><i class="bi bi-inbox fs-1"></i><p class="mt-2">Belum ada pemasukan</p></div></div>
+                    </div>
+                    <div id="tab-pengeluaran" class="tab-pane">
+                        <div id="expenseList"><div class="empty-state"><i class="bi bi-hourglass-split fs-1"></i><p class="mt-2">Memuat...</p></div></div>
+                    </div>
+                    <div id="tab-kasbon" class="tab-pane">
+                        <div class="alert-rules mb-4">
+                            <strong><i class="bi bi-exclamation-triangle me-2"></i>Aturan Kasbon:</strong>
+                            <ul class="mt-2 mb-0"><li>Kasbon <strong>tidak bisa dicicil</strong>, langsung dipotong penuh saat gajian</li><li>Limit kasbon = <strong>50%</strong> dari pencapaian KPI bulan berjalan</li><li>Kasbon baru tidak bisa diajukan jika masih ada kasbon aktif</li></ul>
+                        </div>
+                        <div class="d-flex justify-content-end mb-3"><button class="btn btn-warning btn-sm" onclick="openAddKasbonModal()"><i class="bi bi-plus-lg me-1"></i>Tambah Kasbon</button></div>
+                        <div id="kasbonList"><div class="empty-state"><i class="bi bi-inbox fs-1"></i><p class="mt-2">Belum ada kasbon</p></div></div>
+                    </div>
+                    <div id="tab-uangmakan" class="tab-pane">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-egg-fried me-2"></i>Input Uang Makan Harian</h5></div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-3"><label class="form-label">Tanggal</label><input type="date" class="form-control" id="uangMakanDate"></div>
+                                    <div class="col-md-3"><label class="form-label">Cabang</label><select class="form-select" id="uangMakanBranch"><option value="makassar">Makassar</option><option value="denpasar">Denpasar</option><option value="palu">Palu</option></select></div>
+                                    <div class="col-md-3"><label class="form-label">Jumlah Teknisi</label><input type="number" class="form-control" id="uangMakanCount" value="15"></div>
+                                    <div class="col-md-3"><label class="form-label">Per Orang (Rp)</label><input type="number" class="form-control" id="uangMakanAmount" value="25000"></div>
+                                </div>
+                                <div class="alert alert-info mt-3" id="uangMakanTotal"><strong>Total:</strong> 15 × Rp 25.000 = <strong>Rp 375.000</strong></div>
+                            </div>
+                            <div class="card-footer bg-white"><button class="btn btn-primary" onclick="saveUangMakan()"><i class="bi bi-save me-2"></i>Simpan Uang Makan</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:9999"></div>
+
+    <!-- Expense Modal -->
+    <div class="modal fade" id="expenseModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Tambah Pengeluaran</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <form id="expenseForm">
+                <div class="mb-3"><label class="form-label">Kategori *</label><select class="form-select" name="category" id="expenseCategory" required onchange="handleCategoryChange()"><option value="">Pilih Kategori</option></select></div>
+                <div class="mb-3" id="employeeGroup" style="display:none"><label class="form-label">Pilih Pegawai *</label><select class="form-select" name="employee" id="employeeSelect"><option value="">Pilih Pegawai</option></select></div>
+                <div id="materialFields" style="display:none">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><label class="form-label">Jenis Material</label><select class="form-select" name="materialType" id="materialTypeSelect" onchange="handleMaterialTypeChange()"><option value="">Pilih</option></select></div>
+                        <div class="col-6"><label class="form-label">Merk</label><select class="form-select" name="materialBrand" id="materialBrandSelect"><option value="">Pilih</option></select></div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><label class="form-label">Ukuran</label><select class="form-select" name="materialSize" id="materialSizeSelect"><option value="">Pilih</option></select></div>
+                        <div class="col-6"><label class="form-label">Jumlah</label><input type="number" class="form-control" name="quantity" placeholder="0"></div>
+                    </div>
+                </div>
+                <div id="unitACFields" style="display:none">
+                    <div class="row g-2 mb-3">
+                        <div class="col-4"><label class="form-label">Merk AC</label><select class="form-select" name="acBrand" id="acBrandSelect"><option value="">Pilih</option></select></div>
+                        <div class="col-4"><label class="form-label">Tipe</label><select class="form-select" name="acType" id="acTypeSelect"><option value="">Pilih</option></select></div>
+                        <div class="col-4"><label class="form-label">Kapasitas</label><select class="form-select" name="acCapacity" id="acCapacitySelect"><option value="">Pilih</option></select></div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><label class="form-label">Jumlah Unit</label><input type="number" class="form-control" name="acQuantity" placeholder="0"></div>
+                        <div class="col-6"><label class="form-label">Serial Number</label><input type="text" class="form-control" name="serialNumber" placeholder="Optional"></div>
+                    </div>
+                </div>
+                <div class="mb-3"><label class="form-label">Total Harga (Rp) *</label><input type="number" class="form-control" name="amount" required></div>
+                <div class="mb-3"><label class="form-label">Keterangan</label><textarea class="form-control" name="description" rows="2"></textarea></div>
+                <div class="mb-3"><label class="form-label">Tanggal *</label><input type="date" class="form-control" name="date" required></div>
+            </form>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button type="button" class="btn btn-primary" onclick="submitExpense()">Simpan</button></div>
+    </div></div></div>
+
+    <!-- Kasbon Modal -->
+    <div class="modal fade" id="kasbonModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Tambah Kasbon</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Kasbon akan dipotong penuh dari gaji tanggal 1</div>
+            <form id="kasbonForm">
+                <div class="mb-3"><label class="form-label">Pilih Pegawai *</label><select class="form-select" name="employee" id="kasbonEmployee" required onchange="checkKasbonLimit()"><option value="">Pilih</option></select></div>
+                <div class="mb-3" id="kasbonLimitInfo" style="display:none"><div class="alert alert-info py-2"><div class="d-flex justify-content-between"><span>Limit Kasbon:</span><strong id="kasbonLimitValue">Rp 0</strong></div><small>50% dari KPI</small></div></div>
+                <div class="mb-3"><label class="form-label">Jumlah (Rp) *</label><input type="number" class="form-control" name="amount" required></div>
+                <div class="mb-3"><label class="form-label">Keperluan *</label><textarea class="form-control" name="reason" rows="2" required></textarea></div>
+                <div class="mb-3"><label class="form-label">Tanggal *</label><input type="date" class="form-control" name="date" required></div>
+            </form>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button type="button" class="btn btn-warning" onclick="submitKasbon()">Simpan</button></div>
+    </div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+    let employees=[], expenses=[], kasbonList=[], incomeList=[];
+    let expenseModalEl, kasbonModalEl;
+
+    document.addEventListener('DOMContentLoaded', async()=>{
+        expenseModalEl = new bootstrap.Modal(document.getElementById('expenseModal'));
+        kasbonModalEl = new bootstrap.Modal(document.getElementById('kasbonModal'));
+        initTabs();
+        initUangMakan();
+        initCategoryOptions();
+        await loadEmployees();
+        await loadFinancingData();
+    });
+
+    function initTabs(){
+        document.querySelectorAll('#financeTabs .nav-link').forEach(tab=>{
+            tab.addEventListener('click', e=>{
+                e.preventDefault();
+                document.querySelectorAll('#financeTabs .nav-link').forEach(t=>t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+                updateTabActions(tab.dataset.tab);
+            });
+        });
+    }
+
+    function updateTabActions(tab){
+        const actions = document.getElementById('tabActions');
+        if(tab==='kasbon') actions.innerHTML='<button class="btn btn-warning btn-sm" onclick="openAddKasbonModal()"><i class="bi bi-plus-lg me-1"></i>Tambah Kasbon</button>';
+        else if(tab==='pengeluaran'||tab==='transaksi') actions.innerHTML='<button class="btn btn-danger btn-sm" onclick="openAddExpenseModal()"><i class="bi bi-plus-lg me-1"></i>Tambah Pengeluaran</button>';
+        else actions.innerHTML='';
+    }
+
+    function initUangMakan(){
+        document.getElementById('uangMakanDate').value = new Date().toISOString().split('T')[0];
+        ['uangMakanCount','uangMakanAmount'].forEach(id=>{
+            document.getElementById(id).addEventListener('input', updateUangMakanTotal);
+        });
+    }
+
+    function updateUangMakanTotal(){
+        const c=parseInt(document.getElementById('uangMakanCount').value)||0;
+        const a=parseInt(document.getElementById('uangMakanAmount').value)||0;
+        document.getElementById('uangMakanTotal').innerHTML=`<strong>Total:</strong> ${c} × Rp ${a.toLocaleString('id')} = <strong>Rp ${(c*a).toLocaleString('id')}</strong>`;
+    }
+
+    function initCategoryOptions(){
+        const sel = document.getElementById('expenseCategory');
+        (CONFIG.expenseCategories||[]).forEach(cat=>{
+            sel.innerHTML += `<option value="${cat.id}">${cat.name}${cat.syncTo?' → sync ke '+cat.syncTo.toUpperCase():''}</option>`;
+        });
+        const matSel = document.getElementById('materialTypeSelect');
+        Object.entries(CONFIG.materials||{}).forEach(([k,v])=>{
+            matSel.innerHTML += `<option value="${k}">${v.name}</option>`;
+        });
+        console.log('Material types loaded:', Object.keys(CONFIG.materials||{}));
+    }
+
+    async function loadEmployees(){
+        try{
+            employees = await db.employees.getAll();
+            const empOpts = employees.map(e=>`<option value="${e.id}">${e.name} - ${e.level} (${e.branch||''})</option>`).join('');
+            document.getElementById('employeeSelect').innerHTML = '<option value="">Pilih</option>'+empOpts;
+            document.getElementById('kasbonEmployee').innerHTML = '<option value="">Pilih</option>'+empOpts;
+        }catch(e){console.error(e);}
+    }
+
+    async function loadFinancingData(){
+        console.log('Loading financing data...');
+        try{
+            // Load expenses
+            try {
+                expenses = await db.expenses.getAll();
+                console.log('Expenses loaded:', expenses.length);
+            } catch(e) {
+                console.error('Error loading expenses:', e);
+                expenses = [];
+            }
+            
+            // Load kasbon
+            try {
+                kasbonList = await db.kasbon.getAll();
+                console.log('Kasbon loaded:', kasbonList.length);
+            } catch(e) {
+                console.error('Error loading kasbon:', e);
+                kasbonList = [];
+            }
+            
+            // Load income
+            try {
+                if(db.income) {
+                    incomeList = await db.income.getAll();
+                    console.log('Income loaded:', incomeList.length, incomeList);
+                } else {
+                    console.warn('db.income not found');
+                    incomeList = [];
+                }
+            } catch(e) {
+                console.error('Error loading income:', e);
+                incomeList = [];
+            }
+            
+        }catch(e){
+            console.error('General error:', e);
+            expenses=[];
+            kasbonList=[];
+            incomeList=[];
+        }
+        renderTransactions();
+        renderIncome();
+        renderKasbon();
+        updateSummary();
+    }
+
+    function renderIncome(){
+        const c = document.getElementById('incomeList');
+        if(!incomeList || !incomeList.length){
+            c.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Belum ada pemasukan tercatat</p></div>';
+            return;
+        }
+        const sorted = [...incomeList].sort((a,b)=>new Date(b.date||b.created_at)-new Date(a.date||a.created_at)).slice(0,30);
+        c.innerHTML = sorted.map(inc=>{
+            const serviceLabel = {
+                'cuci_ac':'🧹 Cuci AC',
+                'service_ac':'🔧 Service AC',
+                'isi_freon':'❄️ Isi Freon',
+                'pasang_baru':'🆕 Pasang Baru',
+                'bongkar_pasang':'🔄 Bongkar Pasang',
+                'perbaikan':'🛠️ Perbaikan',
+                'maintenance':'📋 Maintenance',
+                'lainnya':'📦 Lainnya'
+            }[inc.service_type] || inc.service_type || 'Pemasukan';
+            return `
+                <div class="trans-item">
+                    <div class="trans-icon in"><i class="bi bi-arrow-down"></i></div>
+                    <div class="trans-info">
+                        <div class="trans-title">${inc.customer_name || 'Customer'}</div>
+                        <div class="trans-meta">${formatDate(inc.date)} • ${serviceLabel} • ${inc.technician_name||'-'}</div>
+                    </div>
+                    <div class="trans-amount in">+Rp ${(inc.amount||0).toLocaleString('id')}</div>
+                </div>`;
+        }).join('');
+    }
+
+    function renderTransactions(){
+        const c1=document.getElementById('transactionList');
+        const c2=document.getElementById('expenseList');
+        if(!expenses.length){
+            c1.innerHTML=c2.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Belum ada transaksi</p></div>';
+            return;
+        }
+        const sorted=[...expenses].sort((a,b)=>new Date(b.date||b.created_at)-new Date(a.date||a.created_at)).slice(0,30);
+        const html=sorted.map(e=>{
+            const cat=CONFIG.expenseCategories?.find(c=>c.id===e.category)?.name||e.category||'Pengeluaran';
+            const sync=e.synced_to?`<span class="badge bg-info ms-1">→${e.synced_to}</span>`:'';
+            return `<div class="trans-item">
+                <div class="trans-icon out"><i class="bi bi-arrow-up"></i></div>
+                <div class="trans-info"><div class="trans-title">${e.description||cat}${sync}</div><div class="trans-meta">${formatDate(e.date)} • ${cat}</div></div>
+                <div class="trans-amount out">-Rp ${(e.amount||0).toLocaleString('id')}</div>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteExpense('${e.id}')"><i class="bi bi-trash"></i></button>
+            </div>`;
+        }).join('');
+        c1.innerHTML=html; c2.innerHTML=html;
+    }
+
+    function renderKasbon(){
+        const c=document.getElementById('kasbonList');
+        if(!kasbonList.length){c.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Belum ada kasbon</p></div>';return;}
+        c.innerHTML=[...kasbonList].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).map(k=>{
+            const emp=employees.find(e=>e.id===k.employee_id);
+            const paid=k.status==='paid';
+            return `<div class="kasbon-card">
+                <div class="d-flex justify-content-between mb-2">
+                    <div><strong>${emp?.name||'?'}</strong><br><small class="text-muted">${k.reason||'-'}</small></div>
+                    <span class="badge ${paid?'bg-success':'bg-warning'}">${paid?'Lunas':'Belum Lunas'}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-5 fw-bold text-warning">Rp ${(k.amount||0).toLocaleString('id')}</span>
+                    <div><small class="text-muted me-2">${formatDate(k.created_at)}</small>${!paid?`<button class="btn btn-sm btn-success" onclick="payKasbon('${k.id}')"><i class="bi bi-check"></i></button>`:''}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function updateSummary(){
+        const totalInc = (incomeList||[]).reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+        const totalExp = expenses.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+        const totalKas = kasbonList.filter(k=>k.status!=='paid').reduce((s,k)=>s+(parseFloat(k.amount)||0),0);
+        const kasCount = kasbonList.filter(k=>k.status!=='paid').length;
+        const netBalance = totalInc - totalExp;
+        
+        document.getElementById('totalIncome').textContent='Rp '+totalInc.toLocaleString('id');
+        document.getElementById('totalExpense').textContent='Rp '+totalExp.toLocaleString('id');
+        document.getElementById('netBalance').textContent='Rp '+netBalance.toLocaleString('id');
+        document.getElementById('totalKasbon').textContent='Rp '+totalKas.toLocaleString('id');
+        document.getElementById('kasbonCount').textContent=kasCount+' teknisi';
+    }
+
+    function openAddExpenseModal(){
+        document.getElementById('expenseForm').reset();
+        document.getElementById('expenseForm').querySelector('[name="date"]').value=new Date().toISOString().split('T')[0];
+        document.getElementById('employeeGroup').style.display='none';
+        document.getElementById('materialFields').style.display='none';
+        document.getElementById('unitACFields').style.display='none';
+        
+        // Populate category dropdown
+        const catSel = document.getElementById('expenseCategory');
+        catSel.innerHTML = '<option value="">Pilih Kategori</option>';
+        (CONFIG.expenseCategories||[]).forEach(cat=>{
+            catSel.innerHTML += `<option value="${cat.id}">${cat.name}${cat.syncTo?' → sync ke '+cat.syncTo.toUpperCase():''}</option>`;
+        });
+        
+        // Populate material type dropdown
+        const matSel = document.getElementById('materialTypeSelect');
+        matSel.innerHTML = '<option value="">Pilih Jenis Material</option>';
+        Object.entries(CONFIG.materials||{}).forEach(([k,v])=>{
+            matSel.innerHTML += `<option value="${k}">${v.name}</option>`;
+        });
+        
+        // Reset brand and size
+        document.getElementById('materialBrandSelect').innerHTML = '<option value="">Pilih Merk</option>';
+        document.getElementById('materialSizeSelect').innerHTML = '<option value="">Pilih Ukuran</option>';
+        
+        // Reset AC fields
+        document.getElementById('acBrandSelect').innerHTML = '<option value="">Pilih Merk</option>';
+        document.getElementById('acTypeSelect').innerHTML = '<option value="">Pilih Tipe</option>';
+        document.getElementById('acCapacitySelect').innerHTML = '<option value="">Pilih Kapasitas</option>';
+        
+        expenseModalEl.show();
+    }
+
+    function handleCategoryChange(){
+        const cat=document.getElementById('expenseCategory').value;
+        const cfg=CONFIG.expenseCategories?.find(c=>c.id===cat);
+        
+        document.getElementById('employeeGroup').style.display=cat==='kasbon'?'block':'none';
+        document.getElementById('materialFields').style.display=cat==='material'?'block':'none';
+        document.getElementById('unitACFields').style.display=cat==='unit_ac'?'block':'none';
+        
+        // Populate Unit AC dropdowns if needed
+        if(cat==='unit_ac'){
+            const ac = CONFIG.acUnits || {};
+            document.getElementById('acBrandSelect').innerHTML = '<option value="">Pilih Merk</option>'+(ac.brands||[]).map(b=>`<option value="${b}">${b}</option>`).join('');
+            document.getElementById('acTypeSelect').innerHTML = '<option value="">Pilih Tipe</option>'+(ac.types||[]).map(t=>`<option value="${t}">${t}</option>`).join('');
+            document.getElementById('acCapacitySelect').innerHTML = '<option value="">Pilih Kapasitas</option>'+(ac.capacities||[]).map(c=>`<option value="${c}">${c}</option>`).join('');
+        }
+    }
+
+    function handleMaterialTypeChange(){
+        const t=document.getElementById('materialTypeSelect').value;
+        const m=CONFIG.materials?.[t];
+        const brands = m?.brands || [];
+        const sizes = m?.types || m?.sizes || []; // CONFIG uses 'types' not 'sizes' for most materials
+        document.getElementById('materialBrandSelect').innerHTML='<option value="">Pilih Merk</option>'+brands.map(b=>`<option value="${b}">${b}</option>`).join('');
+        document.getElementById('materialSizeSelect').innerHTML='<option value="">Pilih Ukuran</option>'+sizes.map(s=>`<option value="${s}">${s}</option>`).join('');
+    }
+
+    async function submitExpense(){
+        const form=document.getElementById('expenseForm');
+        if(!form.checkValidity()){form.reportValidity();return;}
+        const fd=new FormData(form);
+        const d=Object.fromEntries(fd.entries());
+        const cat=CONFIG.expenseCategories?.find(c=>c.id===d.category);
+        try{
+            const exp={
+                category:d.category,
+                amount:parseFloat(d.amount),
+                description:d.description||null,
+                date:d.date,
+                // Material fields
+                material_type:d.materialType||null,
+                material_brand:d.materialBrand||null,
+                material_size:d.materialSize||null,
+                quantity:d.quantity?parseFloat(d.quantity):null,
+                // AC fields
+                ac_brand:d.acBrand||null,
+                ac_type:d.acType||null,
+                ac_capacity:d.acCapacity||null,
+                ac_quantity:d.acQuantity?parseInt(d.acQuantity):null,
+                serial_number:d.serialNumber||null,
+                // Other
+                employee_id:d.employee||null,
+                synced_to:cat?.syncTo||null
+            };
+            if(cat?.syncTo==='inventory'){
+                await db.expenses.createWithInventorySync(exp);
+                toast('Disimpan & sync ke Inventory','success');
+            }else{
+                await db.expenses.create(exp);
+                toast('Pengeluaran disimpan','success');
+            }
+            expenseModalEl.hide();
+            await loadFinancingData();
+        }catch(e){toast('Error: '+e.message,'danger');}
+    }
+
+    function openAddKasbonModal(){
+        document.getElementById('kasbonForm').reset();
+        document.getElementById('kasbonForm').querySelector('[name="date"]').value=new Date().toISOString().split('T')[0];
+        document.getElementById('kasbonLimitInfo').style.display='none';
+        kasbonModalEl.show();
+    }
+
+    function checkKasbonLimit(){
+        const sel=document.getElementById('kasbonEmployee');
+        if(sel.value){
+            const emp=employees.find(e=>e.id===sel.value);
+            const lvl=CONFIG.employeeLevels?.[emp?.level];
+            const limit=Math.floor((lvl?.dailyRate||100000)*22*0.5);
+            document.getElementById('kasbonLimitValue').textContent='Rp '+limit.toLocaleString('id');
+            document.getElementById('kasbonLimitInfo').style.display='block';
+        }else{document.getElementById('kasbonLimitInfo').style.display='none';}
+    }
+
+    async function submitKasbon(){
+        const form=document.getElementById('kasbonForm');
+        if(!form.checkValidity()){form.reportValidity();return;}
+        const fd=new FormData(form);
+        const d=Object.fromEntries(fd.entries());
+        try{
+            await db.kasbon.create({employee_id:d.employee,amount:parseFloat(d.amount),reason:d.reason,status:'active',date:d.date});
+            toast('Kasbon disimpan','success');
+            kasbonModalEl.hide();
+            await loadFinancingData();
+        }catch(e){toast('Error: '+e.message,'danger');}
+    }
+
+    async function payKasbon(id){
+        if(!confirm('Lunasi kasbon ini?'))return;
+        try{await db.kasbon.update(id,{status:'paid',paid_at:new Date().toISOString()});toast('Kasbon dilunasi','success');await loadFinancingData();}catch(e){toast('Error','danger');}
+    }
+
+    async function deleteExpense(id){
+        if(!confirm('Hapus pengeluaran ini?'))return;
+        try{await db.expenses.delete(id);toast('Dihapus','success');await loadFinancingData();}catch(e){toast('Error','danger');}
+    }
+
+    async function saveUangMakan(){
+        const tgl=document.getElementById('uangMakanDate').value;
+        const cab=document.getElementById('uangMakanBranch').value;
+        const cnt=parseInt(document.getElementById('uangMakanCount').value)||0;
+        const amt=parseInt(document.getElementById('uangMakanAmount').value)||0;
+        if(!tgl||cnt<=0||amt<=0){toast('Lengkapi data','warning');return;}
+        try{
+            await db.expenses.create({category:'uang_makan',amount:cnt*amt,description:`Uang makan ${cnt} teknisi`,date:tgl,branch:cab});
+            toast('Uang makan disimpan','success');
+            await loadFinancingData();
+        }catch(e){toast('Error','danger');}
+    }
+
+    function formatDate(d){return d?new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'-';}
+    function toast(msg,type='primary'){
+        document.getElementById('toastContainer').innerHTML=`<div class="toast show text-white bg-${type} border-0"><div class="d-flex"><div class="toast-body">${msg}</div><button class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button></div></div>`;
+        setTimeout(()=>document.querySelector('.toast')?.remove(),3000);
+    }
+    </script>
+</body>
+</html>

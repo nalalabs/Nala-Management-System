@@ -1,0 +1,146 @@
+/* ============================================
+   NALA AIRCON - CSS VARIABLES
+   Edit file ini untuk mengubah tema keseluruhan
+   ============================================ */
+
+:root {
+    /* ========== BRAND COLORS ========== */
+    --color-primary: #2563eb;           /* Biru utama */
+    --color-primary-light: #3b82f6;     /* Biru lebih terang */
+    --color-primary-dark: #1d4ed8;      /* Biru lebih gelap */
+    --color-primary-bg: #eff6ff;        /* Background biru muda */
+    
+    --color-secondary: #0891b2;         /* Cyan/Teal */
+    --color-secondary-light: #22d3ee;
+    --color-secondary-dark: #0e7490;
+    
+    /* ========== STATUS COLORS ========== */
+    --color-success: #10b981;           /* Hijau - sukses */
+    --color-success-light: #d1fae5;
+    --color-success-dark: #059669;
+    
+    --color-warning: #f59e0b;           /* Kuning - warning */
+    --color-warning-light: #fef3c7;
+    --color-warning-dark: #d97706;
+    
+    --color-danger: #ef4444;            /* Merah - error/danger */
+    --color-danger-light: #fee2e2;
+    --color-danger-dark: #dc2626;
+    
+    --color-info: #6366f1;              /* Ungu - info */
+    --color-info-light: #e0e7ff;
+    --color-info-dark: #4f46e5;
+    
+    /* ========== NEUTRAL COLORS ========== */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+    
+    /* ========== BACKGROUND COLORS ========== */
+    --bg-body: #f1f5f9;                 /* Background utama */
+    --bg-sidebar: #0f172a;              /* Sidebar gelap */
+    --bg-sidebar-hover: #1e293b;
+    --bg-card: #ffffff;                 /* Background card */
+    --bg-card-hover: #f8fafc;
+    
+    /* ========== TEXT COLORS ========== */
+    --text-primary: #1e293b;            /* Text utama */
+    --text-secondary: #64748b;          /* Text sekunder */
+    --text-muted: #94a3b8;              /* Text muted */
+    --text-white: #ffffff;
+    --text-sidebar: #cbd5e1;
+    --text-sidebar-active: #ffffff;
+    
+    /* ========== BORDER ========== */
+    --border-color: #e2e8f0;
+    --border-color-dark: #cbd5e1;
+    --border-radius-sm: 6px;
+    --border-radius-md: 10px;
+    --border-radius-lg: 16px;
+    --border-radius-xl: 24px;
+    --border-radius-full: 9999px;
+    
+    /* ========== SHADOWS ========== */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-card-hover: 0 10px 40px rgba(0, 0, 0, 0.12);
+    
+    /* ========== TYPOGRAPHY ========== */
+    --font-family-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    
+    --font-size-xs: 0.75rem;            /* 12px */
+    --font-size-sm: 0.875rem;           /* 14px */
+    --font-size-base: 1rem;             /* 16px */
+    --font-size-lg: 1.125rem;           /* 18px */
+    --font-size-xl: 1.25rem;            /* 20px */
+    --font-size-2xl: 1.5rem;            /* 24px */
+    --font-size-3xl: 1.875rem;          /* 30px */
+    --font-size-4xl: 2.25rem;           /* 36px */
+    --font-size-5xl: 3rem;              /* 48px */
+    
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    
+    /* ========== SPACING ========== */
+    --spacing-1: 0.25rem;               /* 4px */
+    --spacing-2: 0.5rem;                /* 8px */
+    --spacing-3: 0.75rem;               /* 12px */
+    --spacing-4: 1rem;                  /* 16px */
+    --spacing-5: 1.25rem;               /* 20px */
+    --spacing-6: 1.5rem;                /* 24px */
+    --spacing-8: 2rem;                  /* 32px */
+    --spacing-10: 2.5rem;               /* 40px */
+    --spacing-12: 3rem;                 /* 48px */
+    --spacing-16: 4rem;                 /* 64px */
+    
+    /* ========== LAYOUT ========== */
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+    --header-height: 70px;
+    --content-max-width: 1600px;
+    
+    /* ========== TRANSITIONS ========== */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 350ms ease;
+    
+    /* ========== Z-INDEX ========== */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-tooltip: 600;
+    --z-toast: 700;
+}
+
+/* ========== DARK MODE (optional) ========== */
+[data-theme="dark"] {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --bg-card-hover: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+}

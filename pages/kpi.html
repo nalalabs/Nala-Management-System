@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI - Nala Aircon</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif}
+        .main-content{margin-left:260px;min-height:100vh}
+        .page-header{background:linear-gradient(135deg,#059669 0%,#10b981 100%);color:white;padding:2rem;border-radius:0 0 1.5rem 1.5rem;margin:-1.5rem -1.5rem 1.5rem}
+        .page-header h1{font-weight:700;margin-bottom:.25rem}
+        .page-header p{opacity:.9;margin:0}
+        .stat-card{background:white;border-radius:1rem;padding:1.5rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);text-align:center}
+        .stat-card.primary{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white}
+        .stat-icon{width:56px;height:56px;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto .75rem}
+        .stat-icon.total{background:rgba(255,255,255,.2)}
+        .stat-icon.cuci{background:#dbeafe;color:#2563eb}
+        .stat-icon.pasang{background:#d1fae5;color:#059669}
+        .stat-icon.service{background:#fef3c7;color:#d97706}
+        .stat-value{font-size:2.5rem;font-weight:700}
+        .stat-label{font-size:.875rem;opacity:.8}
+        .tech-card{background:white;border-radius:1rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow:hidden;transition:all .2s}
+        .tech-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px)}
+        .tech-header{background:linear-gradient(135deg,#f8fafc,#f1f5f9);padding:1.25rem;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+        .tech-avatar{width:48px;height:48px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.1rem}
+        .tech-name{font-size:1.1rem;font-weight:600;color:#1e293b}
+        .tech-level{font-size:.75rem;padding:.375rem .75rem;background:#dbeafe;color:#1d4ed8;border-radius:2rem;font-weight:500}
+        .tech-body{padding:1.25rem}
+        .kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+        .kpi-item{background:#f8fafc;border-radius:.75rem;padding:1rem;text-align:center}
+        .kpi-item-value{font-size:1.75rem;font-weight:700;color:#3b82f6}
+        .kpi-item-label{font-size:.75rem;color:#64748b;margin-top:.25rem}
+        .kpi-total{margin-top:1rem;padding-top:1rem;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+        .kpi-total-label{color:#64748b;font-size:.875rem}
+        .kpi-total-value{font-size:1.5rem;font-weight:700;color:#10b981}
+        .recent-jobs{margin-top:1rem;padding-top:1rem;border-top:1px dashed #e2e8f0}
+        .recent-title{font-size:.7rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem}
+        .recent-item{padding:.5rem .75rem;background:#f8fafc;border-radius:.5rem;margin-bottom:.5rem;font-size:.8rem;border-left:3px solid #10b981}
+        .recent-item-date{color:#94a3b8;font-size:.7rem}
+        .recent-item-role{font-size:.65rem;padding:.125rem .375rem;border-radius:.25rem;background:#dbeafe;color:#1d4ed8;margin-left:.375rem}
+        .empty-state{text-align:center;padding:4rem 2rem;background:white;border-radius:1rem;color:#94a3b8}
+        .empty-state i{font-size:3rem;margin-bottom:1rem;opacity:.5}
+        @media(max-width:991px){.main-content{margin-left:0}}
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="sidebar-header">
+                <a href="../index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg></div>
+                    <div class="sidebar-logo-text"><span class="sidebar-logo-title">Nala Aircon</span><span class="sidebar-logo-subtitle">Management System</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><span class="nav-section-title">Menu Utama</span>
+                    <ul><li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Modul</span>
+                    <ul>
+                        <li class="nav-item"><a href="freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                        <li class="nav-item"><a href="financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="nav-text">Financing</span></a></li>
+                        <li class="nav-item"><a href="inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                        <li class="nav-item"><a href="absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                        <li class="nav-item"><a href="database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span><span class="nav-text">Database</span></a></li>
+                        <li class="nav-item"><a href="kpi.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                        <li class="nav-item"><a href="marketplace.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                    </ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Laporan</span>
+                    <ul><li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Laporan</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Pengaturan</span>
+                    <ul><li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="nav-text">Pengaturan</span></a></li></ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-user-avatar">AD</div><div class="sidebar-user-info"><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Admin</span></div></div></div>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="p-4">
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1><i class="bi bi-graph-up-arrow me-2"></i>KPI Teknisi & Helper</h1>
+                            <p>Data otomatis dari Freshmo • Teknisi + Helper dihitung</p>
+                        </div>
+                        <button class="btn btn-light" onclick="loadKPI()"><i class="bi bi-arrow-clockwise"></i></button>
+                    </div>
+                </div>
+
+                <!-- Filter -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="text-muted mb-0">Periode:</label>
+                            <select class="form-select form-select-sm" id="filterMonth" style="width:auto" onchange="loadKPI()">
+                                <option value="">Semua Waktu</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card primary">
+                            <div class="stat-icon total"><i class="bi bi-bar-chart-fill"></i></div>
+                            <div class="stat-value" id="statTotal">0</div>
+                            <div class="stat-label">Total Pekerjaan</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <div class="stat-icon cuci"><i class="bi bi-droplet"></i></div>
+                            <div class="stat-value" id="statCuci">0</div>
+                            <div class="stat-label">Cuci AC</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <div class="stat-icon pasang"><i class="bi bi-tools"></i></div>
+                            <div class="stat-value" id="statPasang">0</div>
+                            <div class="stat-label">Pasang AC</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <div class="stat-icon service"><i class="bi bi-wrench"></i></div>
+                            <div class="stat-value" id="statService">0</div>
+                            <div class="stat-label">Service/Bongkar</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="fw-semibold mb-3"><i class="bi bi-people me-2"></i>Pencapaian Per Pekerja</h5>
+                <div class="row g-4" id="techGrid">
+                    <div class="col-12"><div class="empty-state"><i class="bi bi-hourglass"></i><h5>Memuat...</h5></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+    let bookings=[],employees=[];
+    const serviceToKPI={'Cuci AC':'cuci_ac','Cuci AC Standard':'cuci_ac','Cuci AC Deep Clean':'cuci_ac','Pasang AC Baru':'pasang_ac','Instalasi AC':'pasang_ac','Bongkar Pasang AC':'bongkar_pasang','Pindah AC':'bongkar_pasang','Service AC':'service_berat','Service Berat':'service_berat','Tambah Freon':'service_berat','Perbaikan AC':'service_berat'};
+
+    document.addEventListener('DOMContentLoaded',async()=>{
+        populateMonthFilter();
+        await loadKPI();
+    });
+
+    function populateMonthFilter(){
+        const sel=document.getElementById('filterMonth');
+        const now=new Date();
+        for(let i=0;i<12;i++){
+            const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+            const val=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            const label=d.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+            sel.innerHTML+=`<option value="${val}">${label}</option>`;
+        }
+    }
+
+    async function loadKPI(){
+        try{
+            [bookings,employees]=await Promise.all([db.bookings.getAll(),db.employees.getAll()]);
+            let completed=bookings.filter(b=>b.status==='completed');
+            const month=document.getElementById('filterMonth').value;
+            if(month){completed=completed.filter(b=>{const date=b.completed_at||b.service_date;return date&&date.startsWith(month);});}
+            calculateStats(completed);
+            renderTechnicianCards(completed);
+        }catch(e){console.error(e);}
+    }
+
+    function calculateStats(completed){
+        let cuci=0,pasang=0,service=0;
+        completed.forEach(b=>{
+            const units=b.unit_count||1;
+            const kpiType=serviceToKPI[b.service_type]||'cuci_ac';
+            if(kpiType==='cuci_ac')cuci+=units;
+            else if(kpiType==='pasang_ac')pasang+=units;
+            else service+=units;
+        });
+        document.getElementById('statTotal').textContent=cuci+pasang+service;
+        document.getElementById('statCuci').textContent=cuci;
+        document.getElementById('statPasang').textContent=pasang;
+        document.getElementById('statService').textContent=service;
+    }
+
+    function renderTechnicianCards(completed){
+        const grid=document.getElementById('techGrid');
+        if(!employees.length){grid.innerHTML='<div class="col-12"><div class="empty-state"><i class="bi bi-people"></i><h5>Tidak ada karyawan</h5></div></div>';return;}
+        
+        const techKPI={};
+        employees.forEach(t=>{techKPI[t.id]={employee:t,cuci_ac:0,pasang_ac:0,bongkar_pasang:0,service_berat:0,jobs:[]};});
+        
+        completed.forEach(b=>{
+            const units=b.unit_count||1;
+            const kpiType=serviceToKPI[b.service_type]||'cuci_ac';
+            if(b.technician_id&&techKPI[b.technician_id]){
+                techKPI[b.technician_id][kpiType]+=units;
+                techKPI[b.technician_id].jobs.push({...b,role:'Teknisi'});
+            }
+            if(b.helper_id&&techKPI[b.helper_id]){
+                techKPI[b.helper_id][kpiType]+=units;
+                techKPI[b.helper_id].jobs.push({...b,role:'Helper'});
+            }
+        });
+        
+        const withJobs=Object.values(techKPI).filter(t=>(t.cuci_ac+t.pasang_ac+t.bongkar_pasang+t.service_berat)>0);
+        if(!withJobs.length){grid.innerHTML='<div class="col-12"><div class="empty-state"><i class="bi bi-clipboard-x"></i><h5>Belum ada pekerjaan selesai</h5><p>Selesaikan booking di Freshmo</p></div></div>';return;}
+        
+        const sorted=withJobs.sort((a,b)=>(b.cuci_ac+b.pasang_ac+b.bongkar_pasang+b.service_berat)-(a.cuci_ac+a.pasang_ac+a.bongkar_pasang+a.service_berat));
+        grid.innerHTML=sorted.map(t=>`<div class="col-md-6 col-xl-4">${renderTechCard(t)}</div>`).join('');
+    }
+
+    function renderTechCard(t){
+        const total=t.cuci_ac+t.pasang_ac+t.bongkar_pasang+t.service_berat;
+        const level=t.employee.level||'Karyawan';
+        const levelDisplay=level.charAt(0).toUpperCase()+level.slice(1).replace(/_/g,' ');
+        const initials=t.employee.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        
+        const recentJobs=t.jobs.slice(0,3);
+        let recentHTML='';
+        if(recentJobs.length){
+            recentHTML=`<div class="recent-jobs"><div class="recent-title"><i class="bi bi-clock-history me-1"></i>Pekerjaan Terakhir</div>
+            ${recentJobs.map(j=>`<div class="recent-item"><div class="d-flex justify-content-between align-items-start">
+                <div><strong>${j.service_type}</strong> (${j.unit_count||1} unit)<span class="recent-item-role">${j.role}</span><div class="recent-item-date">${formatDate(j.completed_at||j.service_date)} • ${j.customer_name}</div></div>
+            </div></div>`).join('')}</div>`;
+        }
+        
+        return `<div class="tech-card">
+            <div class="tech-header">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="tech-avatar">${initials}</div>
+                    <div><div class="tech-name">${t.employee.name}</div></div>
+                </div>
+                <span class="tech-level">${levelDisplay}</span>
+            </div>
+            <div class="tech-body">
+                <div class="kpi-grid">
+                    <div class="kpi-item"><div class="kpi-item-value">${t.cuci_ac}</div><div class="kpi-item-label">Cuci AC</div></div>
+                    <div class="kpi-item"><div class="kpi-item-value">${t.pasang_ac}</div><div class="kpi-item-label">Pasang AC</div></div>
+                    <div class="kpi-item"><div class="kpi-item-value">${t.bongkar_pasang}</div><div class="kpi-item-label">Bongkar Pasang</div></div>
+                    <div class="kpi-item"><div class="kpi-item-value">${t.service_berat}</div><div class="kpi-item-label">Service Berat</div></div>
+                </div>
+                <div class="kpi-total"><span class="kpi-total-label">Total Pekerjaan</span><span class="kpi-total-value">${total} unit</span></div>
+                ${recentHTML}
+            </div>
+        </div>`;
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi - Nala Aircon</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif}
+        .main-content{margin-left:260px;min-height:100vh}
+        .page-header{background:linear-gradient(135deg,#0891b2 0%,#06b6d4 100%);color:white;padding:2rem;border-radius:0 0 1.5rem 1.5rem;margin:-1.5rem -1.5rem 1.5rem}
+        .stat-card{background:white;border-radius:1rem;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid;transition:all .2s}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        .stat-card.hadir{border-color:#10b981}
+        .stat-card.izin{border-color:#f59e0b}
+        .stat-card.sakit{border-color:#ef4444}
+        .stat-card.alpha{border-color:#6b7280}
+        .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
+        .stat-icon.hadir{background:#d1fae5;color:#059669}
+        .stat-icon.izin{background:#fef3c7;color:#d97706}
+        .stat-icon.sakit{background:#fee2e2;color:#dc2626}
+        .stat-icon.alpha{background:#f3f4f6;color:#6b7280}
+        .stat-value{font-size:1.75rem;font-weight:700}
+        .nav-pills .nav-link{color:#64748b;font-weight:500;padding:.75rem 1.25rem;border-radius:.5rem}
+        .nav-pills .nav-link.active{background:linear-gradient(135deg,#0891b2,#06b6d4);color:white}
+        .att-card{background:white;border-radius:1rem;padding:1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:.75rem;display:flex;align-items:center;gap:1rem}
+        .att-avatar{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;background:#dbeafe;color:#2563eb}
+        .att-status{padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600}
+        .att-status.hadir{background:#d1fae5;color:#059669}
+        .att-status.izin{background:#fef3c7;color:#d97706}
+        .att-status.sakit{background:#fee2e2;color:#dc2626}
+        .att-status.alpha{background:#f3f4f6;color:#6b7280}
+        .att-status.pending{background:#e0e7ff;color:#4f46e5}
+        .tab-content>.tab-pane{display:none}
+        .tab-content>.tab-pane.active{display:block}
+        .empty-state{text-align:center;padding:3rem;color:#94a3b8}
+        .izin-card{background:white;border-radius:1rem;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:1rem;border-left:4px solid #f59e0b}
+        @media(max-width:991px){.main-content{margin-left:0}}
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="sidebar-header"><a href="../index.html" class="sidebar-logo"><div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg></div><div class="sidebar-logo-text"><span class="sidebar-logo-title">Nala Aircon</span><span class="sidebar-logo-subtitle">Management System</span></div></a></div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><span class="nav-section-title">Menu Utama</span><ul><li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li></ul></div>
+                <div class="nav-section"><span class="nav-section-title">Modul</span><ul>
+                    <li class="nav-item"><a href="freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                    <li class="nav-item"><a href="financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/></svg></span><span class="nav-text">Financing</span></a></li>
+                    <li class="nav-item"><a href="inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                    <li class="nav-item"><a href="absensi.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                    <li class="nav-item"><a href="database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/></svg></span><span class="nav-text">Database</span></a></li>
+                    <li class="nav-item"><a href="kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                    <li class="nav-item"><a href="marketplace.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                </ul></div>
+                <div class="nav-section"><span class="nav-section-title">Laporan</span><ul><li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg></span><span class="nav-text">Laporan</span></a></li></ul></div>
+                <div class="nav-section"><span class="nav-section-title">Pengaturan</span><ul><li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg></span><span class="nav-text">Pengaturan</span></a></li></ul></div>
+            </nav>
+            <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-user-avatar">AD</div><div class="sidebar-user-info"><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Admin</span></div></div></div>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="p-4">
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><h1><i class="bi bi-clock-history me-2"></i>Absensi</h1><p class="mb-0 opacity-75">Kelola kehadiran karyawan</p></div>
+                        <div class="text-end">
+                            <div class="fs-3 fw-bold" id="currentTime">00:00</div>
+                            <div class="small opacity-75" id="currentDate">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card hadir">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Hadir Hari Ini</div><div class="stat-value text-success" id="statHadir">0</div></div>
+                                <div class="stat-icon hadir"><i class="bi bi-check-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card izin">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Izin</div><div class="stat-value text-warning" id="statIzin">0</div></div>
+                                <div class="stat-icon izin"><i class="bi bi-envelope"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card sakit">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Sakit</div><div class="stat-value text-danger" id="statSakit">0</div></div>
+                                <div class="stat-icon sakit"><i class="bi bi-bandaid"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card alpha">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Alpha</div><div class="stat-value text-secondary" id="statAlpha">0</div></div>
+                                <div class="stat-icon alpha"><i class="bi bi-x-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <ul class="nav nav-pills" id="absensiTabs">
+                                <li class="nav-item"><a class="nav-link active" href="#" data-tab="hari-ini"><i class="bi bi-calendar-check me-1"></i>Hari Ini</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="izin"><i class="bi bi-envelope me-1"></i>Pengajuan Izin <span class="badge bg-warning ms-1" id="izinBadge">0</span></a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="rekap"><i class="bi bi-table me-1"></i>Rekap Bulanan</a></li>
+                            </ul>
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportAbsensi()"><i class="bi bi-download me-1"></i>Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <div id="tab-hari-ini" class="tab-pane active">
+                        <div id="todayList"><div class="empty-state"><i class="bi bi-hourglass-split fs-1"></i><p>Memuat...</p></div></div>
+                    </div>
+                    <div id="tab-izin" class="tab-pane">
+                        <div id="izinList"><div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Tidak ada pengajuan izin</p></div></div>
+                    </div>
+                    <div id="tab-rekap" class="tab-pane">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Bulan</label>
+                                        <select class="form-select" id="rekapBulan" onchange="loadRekap()">
+                                            <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+                                            <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+                                            <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+                                            <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tahun</label>
+                                        <select class="form-select" id="rekapTahun" onchange="loadRekap()">
+                                            <option value="2025">2025</option><option value="2024">2024</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Cabang</label>
+                                        <select class="form-select" id="rekapCabang" onchange="loadRekap()">
+                                            <option value="">Semua</option><option value="makassar">Makassar</option><option value="denpasar">Denpasar</option><option value="palu">Palu</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="rekapTable">
+                                        <thead class="table-light">
+                                            <tr><th>Nama</th><th>Cabang</th><th class="text-center">Hadir</th><th class="text-center">Izin</th><th class="text-center">Sakit</th><th class="text-center">Alpha</th><th class="text-center">%</th></tr>
+                                        </thead>
+                                        <tbody id="rekapBody"><tr><td colspan="7" class="text-center text-muted py-4">Pilih periode untuk melihat rekap</td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:9999"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+    let employees=[], attendance=[], leaveRequests=[];
+
+    document.addEventListener('DOMContentLoaded', async()=>{
+        updateClock();
+        setInterval(updateClock, 1000);
+        initTabs();
+        await loadAbsensiData();
+    });
+
+    function updateClock(){
+        const now = new Date();
+        document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    }
+
+    function initTabs(){
+        document.querySelectorAll('#absensiTabs .nav-link').forEach(tab=>{
+            tab.addEventListener('click', e=>{
+                e.preventDefault();
+                document.querySelectorAll('#absensiTabs .nav-link').forEach(t=>t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+            });
+        });
+    }
+
+    async function loadAbsensiData(){
+        try{
+            employees = await db.employees.getAll();
+            attendance = await db.attendance?.getAll() || [];
+            leaveRequests = await db.leaveRequests?.getAll() || [];
+        }catch(e){console.error(e);}
+        updateStats();
+        renderToday();
+        renderIzin();
+    }
+
+    function updateStats(){
+        const today = new Date().toISOString().split('T')[0];
+        const todayAtt = attendance.filter(a=>a.date===today);
+        document.getElementById('statHadir').textContent = todayAtt.filter(a=>a.status==='hadir').length;
+        document.getElementById('statIzin').textContent = todayAtt.filter(a=>a.status==='izin').length;
+        document.getElementById('statSakit').textContent = todayAtt.filter(a=>a.status==='sakit').length;
+        document.getElementById('statAlpha').textContent = todayAtt.filter(a=>a.status==='alpha').length;
+        
+        const pendingIzin = leaveRequests.filter(r=>r.status==='pending').length;
+        document.getElementById('izinBadge').textContent = pendingIzin;
+    }
+
+    function renderToday(){
+        const c = document.getElementById('todayList');
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Show all employees with their attendance status
+        const data = employees.map(emp=>{
+            const att = attendance.find(a=>a.employee_id===emp.id && a.date===today);
+            return {...emp, att};
+        });
+
+        if(!data.length){
+            c.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Tidak ada data karyawan</p></div>';
+            return;
+        }
+
+        c.innerHTML = data.map(e=>{
+            const status = e.att?.status || 'belum';
+            const time = e.att?.check_in ? new Date(e.att.check_in).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-';
+            const statusClass = {hadir:'hadir',izin:'izin',sakit:'sakit',alpha:'alpha',belum:'pending'}[status];
+            const statusLabel = {hadir:'Hadir',izin:'Izin',sakit:'Sakit',alpha:'Alpha',belum:'Belum Absen'}[status];
+            return `
+                <div class="att-card">
+                    <div class="att-avatar">${(e.name||'?')[0].toUpperCase()}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${e.name||'-'}</div>
+                        <small class="text-muted">${e.level||'-'} • ${e.branch||'-'}</small>
+                    </div>
+                    <div class="text-end me-3">
+                        <div class="small text-muted">Check-in</div>
+                        <div class="fw-semibold">${time}</div>
+                    </div>
+                    <span class="att-status ${statusClass}">${statusLabel}</span>
+                </div>`;
+        }).join('');
+    }
+
+    function renderIzin(){
+        const c = document.getElementById('izinList');
+        const pending = leaveRequests.filter(r=>r.status==='pending');
+        
+        if(!pending.length){
+            c.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Tidak ada pengajuan izin pending</p></div>';
+            return;
+        }
+
+        c.innerHTML = pending.map(r=>{
+            const emp = employees.find(e=>e.id===r.employee_id);
+            return `
+                <div class="izin-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="fw-semibold">${emp?.name||'?'}</div>
+                            <small class="text-muted">${r.type==='izin'?'Izin':'Sakit'} • ${r.start_date} - ${r.end_date||r.start_date}</small>
+                        </div>
+                        <span class="badge bg-warning">Pending</span>
+                    </div>
+                    <p class="text-muted small mb-3">${r.reason||'-'}</p>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" onclick="approveIzin('${r.id}')"><i class="bi bi-check me-1"></i>Setujui</button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectIzin('${r.id}')"><i class="bi bi-x me-1"></i>Tolak</button>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    async function approveIzin(id){
+        if(!confirm('Setujui izin ini?')) return;
+        try{
+            await db.leaveRequests.update(id, {status:'approved', approved_at:new Date().toISOString()});
+            toast('Izin disetujui','success');
+            await loadAbsensiData();
+        }catch(e){toast('Error','danger');}
+    }
+
+    async function rejectIzin(id){
+        if(!confirm('Tolak izin ini?')) return;
+        try{
+            await db.leaveRequests.update(id, {status:'rejected', rejected_at:new Date().toISOString()});
+            toast('Izin ditolak','success');
+            await loadAbsensiData();
+        }catch(e){toast('Error','danger');}
+    }
+
+    function loadRekap(){
+        const bulan = document.getElementById('rekapBulan').value;
+        const tahun = document.getElementById('rekapTahun').value;
+        const cabang = document.getElementById('rekapCabang').value;
+        const period = `${tahun}-${bulan}`;
+        
+        let filtered = employees;
+        if(cabang) filtered = filtered.filter(e=>e.branch===cabang);
+        
+        const tbody = document.getElementById('rekapBody');
+        if(!filtered.length){
+            tbody.innerHTML='<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(emp=>{
+            const empAtt = attendance.filter(a=>a.employee_id===emp.id && a.date?.startsWith(period));
+            const hadir = empAtt.filter(a=>a.status==='hadir').length;
+            const izin = empAtt.filter(a=>a.status==='izin').length;
+            const sakit = empAtt.filter(a=>a.status==='sakit').length;
+            const alpha = empAtt.filter(a=>a.status==='alpha').length;
+            const total = hadir+izin+sakit+alpha;
+            const pct = total>0 ? Math.round((hadir/total)*100) : 0;
+            return `<tr>
+                <td><strong>${emp.name}</strong></td>
+                <td>${emp.branch||'-'}</td>
+                <td class="text-center"><span class="badge bg-success">${hadir}</span></td>
+                <td class="text-center"><span class="badge bg-warning">${izin}</span></td>
+                <td class="text-center"><span class="badge bg-danger">${sakit}</span></td>
+                <td class="text-center"><span class="badge bg-secondary">${alpha}</span></td>
+                <td class="text-center"><strong>${pct}%</strong></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function exportAbsensi(){
+        toast('Export sedang diproses...','info');
+        // TODO: Implement export
+    }
+
+    function toast(msg,type='primary'){
+        document.getElementById('toastContainer').innerHTML=`<div class="toast show text-white bg-${type} border-0"><div class="d-flex"><div class="toast-body">${msg}</div><button class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button></div></div>`;
+        setTimeout(()=>document.querySelector('.toast')?.remove(),3000);
+    }
+    </script>
+</body>
+</html>

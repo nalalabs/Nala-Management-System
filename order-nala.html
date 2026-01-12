@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nala Aircon - Booking Service</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #0ea5e9;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            --gradient-bg: linear-gradient(135deg, var(--gray-50) 0%, #e0f2fe 100%);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gradient-bg);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: var(--gray-800);
+        }
+
+        .mobile-container {
+            max-width: 420px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 30s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-50px, -50px) rotate(360deg); }
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-icon i { font-size: 2rem; }
+
+        .app-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-container {
+            padding: 1.5rem 1rem;
+            background: white;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--gray-100);
+            position: relative;
+        }
+
+        .section-header:first-child { margin-top: 0; }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--gradient-primary);
+            border-radius: 0.5rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-secondary);
+            color: white;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-control.is-valid { border-color: var(--success); }
+        .form-control.is-invalid { border-color: var(--danger); }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .input-group { 
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            z-index: 5;
+        }
+
+        .input-group .form-control { padding-left: 3rem; }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-location {
+            background: var(--gradient-secondary);
+            color: white;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        .btn-location:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-submit {
+            background: var(--gradient-primary);
+            color: white;
+            width: 100%;
+            padding: 1.25rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-check {
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: var(--radius-md);
+            border: 2px solid var(--gray-200);
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-check:has(.form-check-input:checked) {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: var(--primary-light);
+        }
+
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            border: 2px solid var(--gray-400);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-light);
+            border-color: var(--primary-light);
+        }
+
+        .info-card {
+            background: linear-gradient(145deg, #ffffff 0%, var(--gray-50) 100%);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid var(--gray-200);
+        }
+
+        .info-card-title {
+            color: var(--primary);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        .check-icon { color: var(--success); }
+
+        .contact-card {
+            background: var(--gradient-secondary);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .contact-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .contact-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        /* Success Modal */
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 1rem;
+        }
+
+        .success-modal.show { display: flex; }
+
+        .success-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .success-icon i { font-size: 2.5rem; color: white; }
+
+        .success-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .success-message {
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .booking-id {
+            background: var(--gray-100);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .toast-notification {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-xl);
+            border-left: 4px solid var(--success);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast-notification.show { transform: translateX(0); }
+        .toast-notification.error { border-left-color: var(--danger); }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .loading-overlay.show { display: flex; }
+
+        .loading-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-200);
+            border-top: 4px solid var(--primary-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .mobile-container {
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="mobile-container">
+        <div class="app-header" data-aos="fade-down">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="bi bi-snow"></i>
+                </div>
+                <h1 class="app-title">Nala Aircon</h1>
+                <p class="app-subtitle">Booking Service AC Mudah & Cepat</p>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="bookingForm">
+                <div data-aos="fade-up" data-aos-delay="100">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <span>Data Pelanggan</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="nama">
+                            <i class="bi bi-person"></i> Nama Lengkap
+                        </label>
+                        <input type="text" class="form-control" id="nama" placeholder="Masukkan nama lengkap" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="lokasi">
+                            <i class="bi bi-geo-alt"></i> Alamat Lengkap
+                        </label>
+                        <textarea class="form-control" id="lokasi" placeholder="Masukkan alamat lengkap" required></textarea>
+                        <button type="button" class="btn btn-location" onclick="ambilLokasi()">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            Ambil Lokasi Saya
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="nohp">
+                            <i class="bi bi-whatsapp"></i> No. WhatsApp
+                        </label>
+                        <input type="tel" class="form-control" id="nohp" placeholder="08xxxxxxxxx" required>
+                    </div>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bi bi-calendar-event"></i>
+                        </div>
+                        <span>Jadwal & Waktu</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="tanggal">
+                            <i class="bi bi-calendar3"></i> Tanggal Service
+                        </label>
+                        <input type="date" class="form-control" id="tanggal" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="waktu">
+                            <i class="bi bi-clock"></i> Waktu Service
+                        </label>
+                        <select class="form-select" id="waktu" required>
+                            <option value="">Pilih waktu service</option>
+                            <option value="08:00">08:00 WITA</option>
+                            <option value="09:00">09:00 WITA</option>
+                            <option value="10:00">10:00 WITA</option>
+                            <option value="11:00">11:00 WITA</option>
+                            <option value="13:00">13:00 WITA</option>
+                            <option value="14:00">14:00 WITA</option>
+                            <option value="15:00">15:00 WITA</option>
+                            <option value="16:00">16:00 WITA</option>
+                            <option value="17:00">17:00 WITA</option>
+                            <option value="18:00">18:00 WITA</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="300">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        <span>Detail Layanan</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="unit">
+                            <i class="bi bi-hash"></i> Jumlah Unit AC
+                        </label>
+                        <input type="number" class="form-control" id="unit" min="1" max="50" placeholder="Jumlah unit" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="jenis">
+                            <i class="bi bi-wrench"></i> Jenis Service
+                        </label>
+                        <select class="form-select" id="jenis" required>
+                            <option value="">Pilih jenis service</option>
+                            <option value="Cuci AC">🧽 Cuci AC</option>
+                            <option value="Perbaikan AC">🔧 Perbaikan AC</option>
+                            <option value="Isi Freon">❄️ Isi Freon</option>
+                            <option value="Instalasi AC">⚙️ Instalasi AC</option>
+                            <option value="Bongkar Pasang AC">🔄 Bongkar Pasang AC</option>
+                            <option value="Service Rutin">📅 Service Rutin</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="tipe_ac">
+                            <i class="bi bi-house"></i> Tipe AC
+                        </label>
+                        <select class="form-select" id="tipe_ac">
+                            <option value="">Pilih tipe AC</option>
+                            <option value="Split Wall">🏠 Split Wall</option>
+                            <option value="Cassette">📱 Cassette</option>
+                            <option value="Standing Floor">🏢 Standing Floor</option>
+                            <option value="VRV/VRF">🏭 VRV/VRF</option>
+                            <option value="Window">🪟 Window</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="keluhan">
+                            <i class="bi bi-chat-text"></i> Keluhan / Catatan
+                        </label>
+                        <textarea class="form-control" id="keluhan" placeholder="Jelaskan keluhan..." rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="400">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="agreement" required>
+                        <label class="form-check-label" for="agreement">
+                            Saya menyetujui data dikirim ke Nala Aircon untuk keperluan service.
+                        </label>
+                    </div>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="500">
+                    <button type="button" class="btn btn-submit" onclick="kirimBooking()">
+                        <i class="bi bi-send-fill"></i>
+                        Kirim Booking
+                    </button>
+                </div>
+            </form>
+
+            <div class="info-card" data-aos="fade-up" data-aos-delay="600">
+                <div class="info-card-title">
+                    <i class="bi bi-info-circle"></i>
+                    Keunggulan Layanan Kami
+                </div>
+                <ul class="info-list">
+                    <li><i class="bi bi-check-circle check-icon"></i> Konfirmasi cepat 1-2 jam</li>
+                    <li><i class="bi bi-check-circle check-icon"></i> Pembayaran setelah selesai</li>
+                    <li><i class="bi bi-check-circle check-icon"></i> Garansi service 30 hari</li>
+                    <li><i class="bi bi-check-circle check-icon"></i> Teknisi berpengalaman</li>
+                    <li><i class="bi bi-check-circle check-icon"></i> Harga transparan</li>
+                </ul>
+            </div>
+
+            <div class="contact-card" data-aos="fade-up" data-aos-delay="700">
+                <h6><i class="bi bi-headset"></i> Customer Service</h6>
+                <div class="contact-grid">
+                    <div>
+                        <div class="contact-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div class="contact-label">Telepon</div>
+                        <div>0878-4691-9314</div>
+                    </div>
+                    <div>
+                        <div class="contact-icon"><i class="bi bi-clock-fill"></i></div>
+                        <div class="contact-label">Jam</div>
+                        <div>08:00 - 19:00</div>
+                    </div>
+                    <div>
+                        <div class="contact-icon"><i class="bi bi-calendar-week-fill"></i></div>
+                        <div class="contact-label">Hari</div>
+                        <div>Sen - Ming</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="bi bi-check-lg"></i>
+            </div>
+            <div class="success-title">Booking Berhasil!</div>
+            <div class="success-message">Data booking Anda sudah tersimpan. Tim kami akan segera menghubungi Anda.</div>
+            <div class="booking-id" id="bookingIdDisplay">#XXXXXXXX</div>
+            <button class="btn btn-whatsapp" onclick="openWhatsApp()">
+                <i class="bi bi-whatsapp"></i>
+                Konfirmasi via WhatsApp
+            </button>
+            <button class="btn btn-submit" style="margin-top: 0.5rem; background: var(--gray-200); color: var(--gray-700);" onclick="closeSuccessModal()">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-title">Mengirim booking...</div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ========== SUPABASE CONFIG ==========
+        const SUPABASE_URL = 'https://kmgobitaptkyufepsovo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZ29iaXRhcHRreXVmZXBzb3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzOTUwNjIsImV4cCI6MjA1MTk3MTA2Mn0.aS2Gvd8X0tT0Pg9pqe1y5C5poLxrBuOJvYND9Ij6jVE';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Store last booking for WhatsApp
+        let lastBooking = null;
+
+        // Initialize AOS
+        AOS.init({ duration: 600, once: true });
+
+        // Set minimum date to tomorrow
+        function setMinDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const dateStr = tomorrow.toISOString().split('T')[0];
+            document.getElementById('tanggal').min = dateStr;
+            document.getElementById('tanggal').value = dateStr;
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+            
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `<i class="bi ${icon}"></i><div>${message}</div>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 4000);
+        }
+
+        // Get user location
+        function ambilLokasi() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Mengambil...';
+            btn.disabled = true;
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        const mapsURL = `https://www.google.com/maps?q=${lat},${lon}`;
+                        
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                document.getElementById('lokasi').value = 
+                                    (data.display_name || mapsURL) + '\n\nLink Maps: ' + mapsURL;
+                                document.getElementById('lokasi').classList.add('is-valid');
+                            })
+                            .catch(() => {
+                                document.getElementById('lokasi').value = mapsURL;
+                            });
+                        
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        showToast('Lokasi berhasil diambil!');
+                    },
+                    error => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        showToast('Gagal ambil lokasi. Input manual.', 'error');
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast('Browser tidak support geolocation.', 'error');
+            }
+        }
+
+        // Validate form
+        function validateForm() {
+            const fields = {
+                nama: document.getElementById('nama').value.trim(),
+                lokasi: document.getElementById('lokasi').value.trim(),
+                nohp: document.getElementById('nohp').value.trim(),
+                tanggal: document.getElementById('tanggal').value,
+                waktu: document.getElementById('waktu').value,
+                unit: document.getElementById('unit').value,
+                jenis: document.getElementById('jenis').value,
+                agreement: document.getElementById('agreement').checked
+            };
+
+            document.querySelectorAll('.form-control, .form-select').forEach(el => {
+                el.classList.remove('is-valid', 'is-invalid');
+            });
+
+            let isValid = true;
+
+            if (!fields.nama || fields.nama.length < 2) {
+                document.getElementById('nama').classList.add('is-invalid');
+                isValid = false;
+            } else {
+                document.getElementById('nama').classList.add('is-valid');
+            }
+
+            if (!fields.lokasi || fields.lokasi.length < 10) {
+                document.getElementById('lokasi').classList.add('is-invalid');
+                isValid = false;
+            } else {
+                document.getElementById('lokasi').classList.add('is-valid');
+            }
+
+            if (!fields.nohp || !fields.nohp.startsWith("08") || fields.nohp.length < 10) {
+                document.getElementById('nohp').classList.add('is-invalid');
+                isValid = false;
+            } else {
+                document.getElementById('nohp').classList.add('is-valid');
+            }
+
+            if (!fields.tanggal) {
+                document.getElementById('tanggal').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!fields.waktu) {
+                document.getElementById('waktu').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!fields.unit || fields.unit < 1) {
+                document.getElementById('unit').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!fields.jenis) {
+                document.getElementById('jenis').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!fields.agreement) {
+                showToast('Harap setujui persyaratan!', 'error');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                showToast('Mohon lengkapi semua data dengan benar!', 'error');
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            return isValid;
+        }
+
+        // Save to Supabase
+        async function saveToSupabase(bookingData) {
+            const { data, error } = await supabaseClient
+                .from('bookings')
+                .insert([bookingData])
+                .select()
+                .single();
+            
+            if (error) throw error;
+            return data;
+        }
+
+        // Send booking
+        async function kirimBooking() {
+            if (!validateForm()) return;
+
+            const loading = document.getElementById('loadingOverlay');
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Mengirim...';
+            btn.disabled = true;
+            loading.classList.add('show');
+
+            const bookingData = {
+                customer_name: document.getElementById('nama').value.trim(),
+                customer_phone: document.getElementById('nohp').value.trim(),
+                address: document.getElementById('lokasi').value.trim(),
+                service_date: document.getElementById('tanggal').value,
+                service_time: document.getElementById('waktu').value,
+                unit_count: parseInt(document.getElementById('unit').value),
+                service_type: document.getElementById('jenis').value,
+                ac_type: document.getElementById('tipe_ac').value || null,
+                notes: document.getElementById('keluhan').value.trim() || null,
+                status: 'pending'
+            };
+
+            try {
+                const result = await saveToSupabase(bookingData);
+                
+                lastBooking = { ...bookingData, id: result.id };
+                
+                loading.classList.remove('show');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Show success modal
+                document.getElementById('bookingIdDisplay').textContent = '#' + result.id.substring(0, 8).toUpperCase();
+                document.getElementById('successModal').classList.add('show');
+                
+                // Reset form
+                document.getElementById('bookingForm').reset();
+                setMinDate();
+
+            } catch (error) {
+                loading.classList.remove('show');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                console.error('Error:', error);
+                showToast('❌ Gagal menyimpan: ' + error.message, 'error');
+            }
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        function openWhatsApp() {
+            if (!lastBooking) return;
+            
+            const dateObj = new Date(lastBooking.service_date);
+            const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            const pesan = `*📋 BOOKING SERVICE AC - NALA AIRCON*
+*ID:* #${lastBooking.id.substring(0, 8).toUpperCase()}
+
+🧍 *Nama:* ${lastBooking.customer_name}
+📍 *Lokasi:* ${lastBooking.address}
+📞 *No. HP:* ${lastBooking.customer_phone}
+📆 *Tanggal:* ${formattedDate}
+⏰ *Waktu:* ${lastBooking.service_time} WITA
+❄️ *Jumlah Unit:* ${lastBooking.unit_count} unit
+🔧 *Jenis Service:* ${lastBooking.service_type}
+🏠 *Tipe AC:* ${lastBooking.ac_type || 'Tidak disebutkan'}
+📝 *Catatan:* ${lastBooking.notes || 'Tidak ada'}
+
+---
+✅ _Data sudah tersimpan di sistem._
+_Mohon konfirmasi jadwal booking saya._
+
+🙏 *Terima kasih - Nala Aircon*`;
+
+            const waURL = `https://wa.me/6287846919314?text=${encodeURIComponent(pesan)}`;
+            window.open(waURL, '_blank');
+            closeSuccessModal();
+        }
+
+        // Phone number validation
+        document.getElementById('nohp').addEventListener('input', function() {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value.length > 13) value = value.substring(0, 13);
+            this.value = value;
+            
+            if (value.startsWith('08') && value.length >= 10) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else if (value.length > 0) {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setMinDate();
+            console.log('🚀 Nala Aircon Booking Form Ready (Supabase)!');
+        });
+    </script>
+</body>
+</html>

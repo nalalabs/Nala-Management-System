@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Nala Aircon</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif}
+        .main-content{margin-left:260px;min-height:100vh}
+        .page-header{background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%);color:white;padding:2rem;border-radius:0 0 1.5rem 1.5rem;margin:-1.5rem -1.5rem 1.5rem}
+        .page-header h1{font-weight:700;margin-bottom:.25rem}
+        .page-header p{opacity:.9;margin:0}
+        .stat-card{background:white;border-radius:1rem;padding:1.5rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .2s;position:relative;overflow:hidden}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+        .stat-card.freshmo::before{background:linear-gradient(180deg,#3b82f6,#1d4ed8)}
+        .stat-card.inventory::before{background:linear-gradient(180deg,#06b6d4,#0891b2)}
+        .stat-card.kpi::before{background:linear-gradient(180deg,#10b981,#059669)}
+        .stat-card.employee::before{background:linear-gradient(180deg,#8b5cf6,#7c3aed)}
+        .stat-icon{width:56px;height:56px;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+        .stat-icon.freshmo{background:#dbeafe;color:#2563eb}
+        .stat-icon.inventory{background:#cffafe;color:#0891b2}
+        .stat-icon.kpi{background:#d1fae5;color:#059669}
+        .stat-icon.employee{background:#ede9fe;color:#7c3aed}
+        .stat-value{font-size:2rem;font-weight:700;color:#1e293b}
+        .stat-label{color:#64748b;font-size:.875rem}
+        .stat-trend{font-size:.75rem;display:flex;align-items:center;gap:.25rem}
+        .stat-trend.up{color:#10b981}
+        .stat-trend.down{color:#ef4444}
+        .module-card{background:white;border-radius:1rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow:hidden;transition:all .2s;text-decoration:none;display:block}
+        .module-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.12)}
+        .module-icon{width:64px;height:64px;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin-bottom:1rem}
+        .module-icon.freshmo{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white}
+        .module-icon.inventory{background:linear-gradient(135deg,#06b6d4,#0891b2);color:white}
+        .module-icon.kpi{background:linear-gradient(135deg,#10b981,#059669);color:white}
+        .module-icon.database{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white}
+        .module-icon.financing{background:linear-gradient(135deg,#f59e0b,#d97706);color:white}
+        .module-icon.absensi{background:linear-gradient(135deg,#ec4899,#db2777);color:white}
+        .module-name{font-size:1.1rem;font-weight:600;color:#1e293b;margin-bottom:.25rem}
+        .module-desc{font-size:.8rem;color:#64748b}
+        .activity-item{display:flex;align-items:flex-start;gap:1rem;padding:1rem;border-radius:.75rem;transition:background .2s}
+        .activity-item:hover{background:#f8fafc}
+        .activity-icon{width:40px;height:40px;border-radius:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .activity-icon.success{background:#d1fae5;color:#059669}
+        .activity-icon.primary{background:#dbeafe;color:#2563eb}
+        .activity-icon.warning{background:#fef3c7;color:#d97706}
+        .activity-text{font-size:.875rem;color:#1e293b;margin-bottom:.25rem}
+        .activity-time{font-size:.75rem;color:#94a3b8}
+        .welcome-time{font-size:3rem;font-weight:700;opacity:.9}
+        .welcome-date{font-size:1rem;opacity:.8}
+        @media(max-width:991px){.main-content{margin-left:0}}
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg></div>
+                    <div class="sidebar-logo-text"><span class="sidebar-logo-title">Nala Aircon</span><span class="sidebar-logo-subtitle">Management System</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><span class="nav-section-title">Menu Utama</span>
+                    <ul><li class="nav-item"><a href="index.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Modul</span>
+                    <ul>
+                        <li class="nav-item"><a href="pages/freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                        <li class="nav-item"><a href="pages/financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="nav-text">Financing</span></a></li>
+                        <li class="nav-item"><a href="pages/inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                        <li class="nav-item"><a href="pages/absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                        <li class="nav-item"><a href="pages/database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span><span class="nav-text">Database</span></a></li>
+                        <li class="nav-item"><a href="pages/kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                        <li class="nav-item"><a href="pages/marketplace.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                    </ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Laporan</span>
+                    <ul><li class="nav-item"><a href="pages/reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Laporan</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Pengaturan</span>
+                    <ul><li class="nav-item"><a href="pages/settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="nav-text">Pengaturan</span></a></li></ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-user-avatar">AD</div><div class="sidebar-user-info"><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Admin</span></div></div></div>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="p-4">
+                <div class="page-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h1><i class="bi bi-speedometer2 me-2"></i>Dashboard</h1>
+                            <p>Selamat datang kembali, Administrator!</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="welcome-time" id="currentTime">00:00</div>
+                            <div class="welcome-date" id="currentDate">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card freshmo">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stat-label">Booking Hari Ini</div>
+                                    <div class="stat-value" id="statBooking">0</div>
+                                    <div class="stat-trend up"><i class="bi bi-arrow-up"></i> <span id="statPending">0</span> menunggu</div>
+                                </div>
+                                <div class="stat-icon freshmo"><i class="bi bi-clipboard-check"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card inventory">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stat-label">Total Inventory</div>
+                                    <div class="stat-value" id="statInventory">0</div>
+                                    <div class="stat-trend down"><i class="bi bi-exclamation-triangle"></i> <span id="statLow">0</span> menipis</div>
+                                </div>
+                                <div class="stat-icon inventory"><i class="bi bi-box-seam"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card kpi">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stat-label">Pekerjaan Selesai</div>
+                                    <div class="stat-value" id="statCompleted">0</div>
+                                    <div class="stat-trend up"><i class="bi bi-check-circle"></i> bulan ini</div>
+                                </div>
+                                <div class="stat-icon kpi"><i class="bi bi-graph-up"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card employee">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stat-label">Total Karyawan</div>
+                                    <div class="stat-value" id="statEmployee">0</div>
+                                    <div class="stat-trend"><i class="bi bi-person-check"></i> aktif</div>
+                                </div>
+                                <div class="stat-icon employee"><i class="bi bi-people"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Modules -->
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="mb-0 fw-semibold"><i class="bi bi-grid-3x3-gap me-2"></i>Modul Utama</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-6 col-md-4">
+                                        <a href="pages/freshmo.html" class="module-card p-4 text-center">
+                                            <div class="module-icon freshmo mx-auto"><i class="bi bi-clipboard-check"></i></div>
+                                            <div class="module-name">Freshmo</div>
+                                            <div class="module-desc">Kelola booking service</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <a href="pages/inventory.html" class="module-card p-4 text-center">
+                                            <div class="module-icon inventory mx-auto"><i class="bi bi-box-seam"></i></div>
+                                            <div class="module-name">Inventory</div>
+                                            <div class="module-desc">Stok material & AC</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <a href="pages/kpi.html" class="module-card p-4 text-center">
+                                            <div class="module-icon kpi mx-auto"><i class="bi bi-graph-up"></i></div>
+                                            <div class="module-name">KPI</div>
+                                            <div class="module-desc">Pencapaian teknisi</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <a href="pages/database.html" class="module-card p-4 text-center">
+                                            <div class="module-icon database mx-auto"><i class="bi bi-database"></i></div>
+                                            <div class="module-name">Database</div>
+                                            <div class="module-desc">Master data</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <a href="pages/financing.html" class="module-card p-4 text-center">
+                                            <div class="module-icon financing mx-auto"><i class="bi bi-wallet2"></i></div>
+                                            <div class="module-name">Financing</div>
+                                            <div class="module-desc">Keuangan & kas</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <a href="pages/absensi.html" class="module-card p-4 text-center">
+                                            <div class="module-icon absensi mx-auto"><i class="bi bi-clock-history"></i></div>
+                                            <div class="module-name">Absensi</div>
+                                            <div class="module-desc">Kehadiran karyawan</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-semibold"><i class="bi bi-clock-history me-2"></i>Aktivitas Terkini</h5>
+                            </div>
+                            <div class="card-body p-0" id="activityList">
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-hourglass fs-1 opacity-50"></i>
+                                    <p class="mt-2">Memuat aktivitas...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded',async()=>{
+        updateDateTime();
+        setInterval(updateDateTime,1000);
+        await loadDashboardData();
+    });
+
+    function updateDateTime(){
+        const now=new Date();
+        document.getElementById('currentTime').textContent=now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+        document.getElementById('currentDate').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    }
+
+    async function loadDashboardData(){
+        try{
+            const [bookings,inventory,employees]=await Promise.all([
+                db.bookings.getAll(),
+                db.inventory.getAll(),
+                db.employees.getAll()
+            ]);
+            
+            const today=new Date().toISOString().split('T')[0];
+            const thisMonth=today.substring(0,7);
+            
+            // Stats
+            const todayBookings=bookings.filter(b=>b.service_date===today);
+            const pending=bookings.filter(b=>b.status==='pending');
+            const completedThisMonth=bookings.filter(b=>b.status==='completed'&&(b.completed_at||b.service_date)?.startsWith(thisMonth));
+            const lowStock=inventory.filter(i=>(i.quantity||0)<=(i.min_stock||5));
+            
+            document.getElementById('statBooking').textContent=todayBookings.length;
+            document.getElementById('statPending').textContent=pending.length;
+            document.getElementById('statInventory').textContent=inventory.length;
+            document.getElementById('statLow').textContent=lowStock.length;
+            document.getElementById('statCompleted').textContent=completedThisMonth.length;
+            document.getElementById('statEmployee').textContent=employees.length;
+            
+            // Recent activity from bookings
+            renderActivity(bookings);
+        }catch(e){console.error(e);}
+    }
+
+    function renderActivity(bookings){
+        const container=document.getElementById('activityList');
+        const recent=bookings.sort((a,b)=>new Date(b.updated_at||b.created_at)-new Date(a.updated_at||a.created_at)).slice(0,5);
+        
+        if(!recent.length){
+            container.innerHTML='<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 opacity-50"></i><p class="mt-2">Belum ada aktivitas</p></div>';
+            return;
+        }
+        
+        const icons={pending:'warning',assigned:'primary',in_progress:'primary',completed:'success',cancelled:'secondary'};
+        const labels={pending:'Booking baru',assigned:'Ditugaskan',in_progress:'Sedang dikerjakan',completed:'Selesai',cancelled:'Dibatalkan'};
+        
+        container.innerHTML=recent.map(b=>`
+            <div class="activity-item">
+                <div class="activity-icon ${icons[b.status]||'primary'}"><i class="bi bi-clipboard-check"></i></div>
+                <div>
+                    <div class="activity-text"><strong>${b.customer_name}</strong> - ${labels[b.status]||b.status}</div>
+                    <div class="activity-time">${b.service_type} • ${formatDate(b.updated_at||b.created_at)}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    </script>
+</body>
+</html>

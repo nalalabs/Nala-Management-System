@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database - Nala Aircon</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif}
+        .main-content{margin-left:260px;min-height:100vh}
+        .page-header{background:linear-gradient(135deg,#7c3aed 0%,#a855f7 100%);color:white;padding:2rem;border-radius:0 0 1.5rem 1.5rem;margin:-1.5rem -1.5rem 1.5rem}
+        .stat-card{background:white;border-radius:1rem;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid;transition:all .2s}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        .stat-card.teknisi{border-color:#3b82f6}
+        .stat-card.pelanggan{border-color:#10b981}
+        .stat-card.proyek{border-color:#f59e0b}
+        .stat-card.supplier{border-color:#ec4899}
+        .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
+        .stat-icon.teknisi{background:#dbeafe;color:#2563eb}
+        .stat-icon.pelanggan{background:#d1fae5;color:#059669}
+        .stat-icon.proyek{background:#fef3c7;color:#d97706}
+        .stat-icon.supplier{background:#fce7f3;color:#db2777}
+        .stat-value{font-size:1.75rem;font-weight:700}
+        .nav-pills .nav-link{color:#64748b;font-weight:500;padding:.75rem 1.25rem;border-radius:.5rem}
+        .nav-pills .nav-link:hover{background:#f1f5f9}
+        .nav-pills .nav-link.active{background:linear-gradient(135deg,#7c3aed,#a855f7);color:white}
+        .data-card{background:white;border-radius:1rem;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:1rem;transition:all .2s}
+        .data-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        .data-avatar{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1.1rem}
+        .data-avatar.teknisi{background:#dbeafe;color:#2563eb}
+        .data-avatar.pelanggan{background:#d1fae5;color:#059669}
+        .data-avatar.proyek{background:#fef3c7;color:#d97706}
+        .tab-content>.tab-pane{display:none}
+        .tab-content>.tab-pane.active{display:block}
+        .empty-state{text-align:center;padding:3rem;color:#94a3b8}
+        @media(max-width:991px){.main-content{margin-left:0}}
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="sidebar-header"><a href="../index.html" class="sidebar-logo"><div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg></div><div class="sidebar-logo-text"><span class="sidebar-logo-title">Nala Aircon</span><span class="sidebar-logo-subtitle">Management System</span></div></a></div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><span class="nav-section-title">Menu Utama</span><ul><li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li></ul></div>
+                <div class="nav-section"><span class="nav-section-title">Modul</span><ul>
+                    <li class="nav-item"><a href="freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                    <li class="nav-item"><a href="financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/></svg></span><span class="nav-text">Financing</span></a></li>
+                    <li class="nav-item"><a href="inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                    <li class="nav-item"><a href="absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                    <li class="nav-item"><a href="database.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/></svg></span><span class="nav-text">Database</span></a></li>
+                    <li class="nav-item"><a href="kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                    <li class="nav-item"><a href="marketplace.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                </ul></div>
+                <div class="nav-section"><span class="nav-section-title">Laporan</span><ul><li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg></span><span class="nav-text">Laporan</span></a></li></ul></div>
+                <div class="nav-section"><span class="nav-section-title">Pengaturan</span><ul><li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg></span><span class="nav-text">Pengaturan</span></a></li></ul></div>
+            </nav>
+            <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-user-avatar">AD</div><div class="sidebar-user-info"><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Admin</span></div></div></div>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="p-4">
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><h1><i class="bi bi-database me-2"></i>Database</h1><p class="mb-0 opacity-75">Kelola data teknisi, pelanggan, dan proyek</p></div>
+                        <button class="btn btn-light" onclick="loadAllData()"><i class="bi bi-arrow-clockwise"></i></button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card teknisi">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Total Teknisi</div><div class="stat-value text-primary" id="statTeknisi">0</div></div>
+                                <div class="stat-icon teknisi"><i class="bi bi-person-badge"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card pelanggan">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Total Pelanggan</div><div class="stat-value text-success" id="statPelanggan">0</div></div>
+                                <div class="stat-icon pelanggan"><i class="bi bi-people"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card proyek">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Total Proyek</div><div class="stat-value text-warning" id="statProyek">0</div></div>
+                                <div class="stat-icon proyek"><i class="bi bi-folder"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="stat-card supplier">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><div class="text-muted small">Total Supplier</div><div class="stat-value text-pink" id="statSupplier">0</div></div>
+                                <div class="stat-icon supplier"><i class="bi bi-building"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <ul class="nav nav-pills" id="dbTabs">
+                                <li class="nav-item"><a class="nav-link active" href="#" data-tab="teknisi"><i class="bi bi-person-badge me-1"></i>Teknisi</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="pelanggan"><i class="bi bi-people me-1"></i>Pelanggan</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="proyek"><i class="bi bi-folder me-1"></i>Proyek</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="supplier"><i class="bi bi-building me-1"></i>Supplier</a></li>
+                            </ul>
+                            <div id="tabActions">
+                                <button class="btn btn-primary btn-sm" onclick="openAddModal('teknisi')"><i class="bi bi-plus-lg me-1"></i>Tambah Teknisi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <div id="tab-teknisi" class="tab-pane active">
+                        <div id="teknisiList"><div class="empty-state"><i class="bi bi-hourglass-split fs-1"></i><p>Memuat...</p></div></div>
+                    </div>
+                    <div id="tab-pelanggan" class="tab-pane">
+                        <div id="pelangganList"><div class="empty-state"><i class="bi bi-hourglass-split fs-1"></i><p>Memuat...</p></div></div>
+                    </div>
+                    <div id="tab-proyek" class="tab-pane">
+                        <div id="proyekList"><div class="empty-state"><i class="bi bi-hourglass-split fs-1"></i><p>Memuat...</p></div></div>
+                    </div>
+                    <div id="tab-supplier" class="tab-pane">
+                        <div id="supplierList"><div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Belum ada supplier</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:9999"></div>
+
+    <!-- Generic Modal -->
+    <div class="modal fade" id="dataModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title" id="modalTitle">Tambah Data</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary" id="modalSubmit">Simpan</button></div>
+    </div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+    let employees=[], customers=[], projects=[];
+    let dataModalEl, currentTab='teknisi';
+
+    document.addEventListener('DOMContentLoaded', async()=>{
+        dataModalEl = new bootstrap.Modal(document.getElementById('dataModal'));
+        initTabs();
+        await loadAllData();
+    });
+
+    function initTabs(){
+        document.querySelectorAll('#dbTabs .nav-link').forEach(tab=>{
+            tab.addEventListener('click', e=>{
+                e.preventDefault();
+                document.querySelectorAll('#dbTabs .nav-link').forEach(t=>t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                document.getElementById('tab-'+currentTab).classList.add('active');
+                updateTabActions(currentTab);
+            });
+        });
+    }
+
+    function updateTabActions(tab){
+        const labels={teknisi:'Teknisi',pelanggan:'Pelanggan',proyek:'Proyek',supplier:'Supplier'};
+        document.getElementById('tabActions').innerHTML=`<button class="btn btn-primary btn-sm" onclick="openAddModal('${tab}')"><i class="bi bi-plus-lg me-1"></i>Tambah ${labels[tab]}</button>`;
+    }
+
+    async function loadAllData(){
+        try{
+            [employees, customers, projects] = await Promise.all([
+                db.employees.getAll(),
+                db.customers.getAll(),
+                db.projects?.getAll() || []
+            ]);
+        }catch(e){console.error(e);}
+        updateStats();
+        renderTeknisi();
+        renderPelanggan();
+        renderProyek();
+    }
+
+    function updateStats(){
+        document.getElementById('statTeknisi').textContent = employees.length;
+        document.getElementById('statPelanggan').textContent = customers.length;
+        document.getElementById('statProyek').textContent = projects.length;
+    }
+
+    function renderTeknisi(){
+        const c=document.getElementById('teknisiList');
+        if(!employees.length){c.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Belum ada data teknisi</p></div>';return;}
+        c.innerHTML=employees.map(e=>`
+            <div class="data-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="data-avatar teknisi">${(e.name||'?')[0].toUpperCase()}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${e.name||'-'}</div>
+                        <small class="text-muted">${e.level||'-'} • ${e.branch||'-'}</small>
+                    </div>
+                    <div class="text-end">
+                        <div><span class="badge ${e.status==='active'?'bg-success':'bg-secondary'}">${e.status||'active'}</span></div>
+                        <small class="text-muted">${e.phone||'-'}</small>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editData('teknisi','${e.id}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteData('teknisi','${e.id}')"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>`).join('');
+    }
+
+    function renderPelanggan(){
+        const c=document.getElementById('pelangganList');
+        if(!customers.length){c.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Belum ada pelanggan</p></div>';return;}
+        c.innerHTML=customers.map(e=>`
+            <div class="data-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="data-avatar pelanggan">${(e.name||'?')[0].toUpperCase()}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${e.name||'-'}</div>
+                        <small class="text-muted">${e.type||'perorangan'} • ${e.address||'-'}</small>
+                    </div>
+                    <div class="text-end"><small class="text-muted">${e.phone||'-'}</small></div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editData('pelanggan','${e.id}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteData('pelanggan','${e.id}')"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>`).join('');
+    }
+
+    function renderProyek(){
+        const c=document.getElementById('proyekList');
+        if(!projects.length){c.innerHTML='<div class="empty-state"><i class="bi bi-inbox fs-1"></i><p>Belum ada proyek</p></div>';return;}
+        c.innerHTML=projects.map(e=>`
+            <div class="data-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="data-avatar proyek">${(e.name||'?')[0].toUpperCase()}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${e.name||'-'}</div>
+                        <small class="text-muted">${e.customer_name||'-'} • ${e.location||'-'}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-${e.status==='completed'?'success':e.status==='in_progress'?'primary':'secondary'}">${e.status||'-'}</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editData('proyek','${e.id}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteData('proyek','${e.id}')"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>`).join('');
+    }
+
+    function openAddModal(type){
+        document.getElementById('modalTitle').textContent = 'Tambah '+ {teknisi:'Teknisi',pelanggan:'Pelanggan',proyek:'Proyek',supplier:'Supplier'}[type];
+        let html = '';
+        if(type==='teknisi'){
+            const levels = Object.entries(CONFIG.employeeLevels||{}).map(([k,v])=>`<option value="${k}">${v.name||k}</option>`).join('');
+            html=`<form id="dataForm">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Nama *</label><input type="text" class="form-control" name="name" required></div>
+                    <div class="col-md-6"><label class="form-label">No HP *</label><input type="tel" class="form-control" name="phone" required></div>
+                    <div class="col-md-6"><label class="form-label">Level *</label><select class="form-select" name="level" required><option value="">Pilih</option>${levels}</select></div>
+                    <div class="col-md-6"><label class="form-label">Cabang *</label><select class="form-select" name="branch" required><option value="makassar">Makassar</option><option value="denpasar">Denpasar</option><option value="palu">Palu</option></select></div>
+                    <div class="col-md-6"><label class="form-label">Alamat</label><input type="text" class="form-control" name="address"></div>
+                    <div class="col-md-6"><label class="form-label">Status</label><select class="form-select" name="status"><option value="active">Aktif</option><option value="inactive">Tidak Aktif</option></select></div>
+                </div>
+            </form>`;
+        }else if(type==='pelanggan'){
+            html=`<form id="dataForm">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Nama *</label><input type="text" class="form-control" name="name" required></div>
+                    <div class="col-md-6"><label class="form-label">Tipe</label><select class="form-select" name="type"><option value="perorangan">Perorangan</option><option value="perusahaan">Perusahaan</option></select></div>
+                    <div class="col-md-6"><label class="form-label">No HP</label><input type="tel" class="form-control" name="phone"></div>
+                    <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" name="email"></div>
+                    <div class="col-12"><label class="form-label">Alamat</label><textarea class="form-control" name="address" rows="2"></textarea></div>
+                    <div class="col-12"><label class="form-label">Catatan</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
+                </div>
+            </form>`;
+        }else if(type==='proyek'){
+            const custOpts = customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+            html=`<form id="dataForm">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Nama Proyek *</label><input type="text" class="form-control" name="name" required></div>
+                    <div class="col-md-6"><label class="form-label">Pelanggan</label><select class="form-select" name="customer_id"><option value="">Pilih</option>${custOpts}</select></div>
+                    <div class="col-md-6"><label class="form-label">Lokasi</label><input type="text" class="form-control" name="location"></div>
+                    <div class="col-md-6"><label class="form-label">Nilai Proyek</label><input type="number" class="form-control" name="value"></div>
+                    <div class="col-md-6"><label class="form-label">Tgl Mulai</label><input type="date" class="form-control" name="start_date"></div>
+                    <div class="col-md-6"><label class="form-label">Status</label><select class="form-select" name="status"><option value="pending">Pending</option><option value="in_progress">Berjalan</option><option value="completed">Selesai</option></select></div>
+                </div>
+            </form>`;
+        }else{
+            html=`<form id="dataForm">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Nama Supplier *</label><input type="text" class="form-control" name="name" required></div>
+                    <div class="col-md-6"><label class="form-label">Kontak</label><input type="text" class="form-control" name="contact"></div>
+                    <div class="col-md-6"><label class="form-label">No HP</label><input type="tel" class="form-control" name="phone"></div>
+                    <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" name="email"></div>
+                    <div class="col-12"><label class="form-label">Alamat</label><textarea class="form-control" name="address" rows="2"></textarea></div>
+                </div>
+            </form>`;
+        }
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalSubmit').onclick = ()=>submitData(type);
+        dataModalEl.show();
+    }
+
+    async function submitData(type){
+        const form = document.getElementById('dataForm');
+        if(!form.checkValidity()){form.reportValidity();return;}
+        const fd = new FormData(form);
+        const data = Object.fromEntries(fd.entries());
+        try{
+            if(type==='teknisi') await db.employees.create(data);
+            else if(type==='pelanggan') await db.customers.create(data);
+            else if(type==='proyek' && db.projects) await db.projects.create(data);
+            toast('Data berhasil disimpan','success');
+            dataModalEl.hide();
+            await loadAllData();
+        }catch(e){toast('Error: '+e.message,'danger');}
+    }
+
+    function editData(type, id){
+        let item;
+        if(type==='teknisi') item = employees.find(e=>e.id===id);
+        else if(type==='pelanggan') item = customers.find(e=>e.id===id);
+        else if(type==='proyek') item = projects.find(e=>e.id===id);
+        if(!item){toast('Data tidak ditemukan','danger');return;}
+        
+        openAddModal(type);
+        document.getElementById('modalTitle').textContent = 'Edit '+ {teknisi:'Teknisi',pelanggan:'Pelanggan',proyek:'Proyek'}[type];
+        
+        setTimeout(()=>{
+            const form = document.getElementById('dataForm');
+            Object.keys(item).forEach(k=>{
+                const el = form.querySelector(`[name="${k}"]`);
+                if(el) el.value = item[k] || '';
+            });
+            document.getElementById('modalSubmit').onclick = ()=>updateData(type, id);
+        },100);
+    }
+
+    async function updateData(type, id){
+        const form = document.getElementById('dataForm');
+        if(!form.checkValidity()){form.reportValidity();return;}
+        const fd = new FormData(form);
+        const data = Object.fromEntries(fd.entries());
+        try{
+            if(type==='teknisi') await db.employees.update(id, data);
+            else if(type==='pelanggan') await db.customers.update(id, data);
+            else if(type==='proyek' && db.projects) await db.projects.update(id, data);
+            toast('Data berhasil diupdate','success');
+            dataModalEl.hide();
+            await loadAllData();
+        }catch(e){toast('Error: '+e.message,'danger');}
+    }
+
+    async function deleteData(type, id){
+        if(!confirm('Hapus data ini?')) return;
+        try{
+            if(type==='teknisi') await db.employees.delete(id);
+            else if(type==='pelanggan') await db.customers.delete(id);
+            else if(type==='proyek' && db.projects) await db.projects.delete(id);
+            toast('Data dihapus','success');
+            await loadAllData();
+        }catch(e){toast('Error: '+e.message,'danger');}
+    }
+
+    function toast(msg,type='primary'){
+        document.getElementById('toastContainer').innerHTML=`<div class="toast show text-white bg-${type} border-0"><div class="d-flex"><div class="toast-body">${msg}</div><button class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button></div></div>`;
+        setTimeout(()=>document.querySelector('.toast')?.remove(),3000);
+    }
+    </script>
+</body>
+</html>

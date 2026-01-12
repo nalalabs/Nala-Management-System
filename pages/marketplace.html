@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <title>Marketplace - Nala Aircon</title>
+    
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/cards.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <style>
+        .market-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-4);
+            margin-bottom: var(--spacing-6);
+        }
+        
+        .market-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-5);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .market-card.highlight {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: white;
+            border: none;
+        }
+        
+        .market-card-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-extrabold);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .market-card-label {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+        }
+        
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: var(--spacing-4);
+        }
+        
+        .product-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all var(--transition-fast);
+        }
+        
+        .product-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+        
+        .product-image {
+            height: 180px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .product-image svg {
+            width: 64px;
+            height: 64px;
+            color: var(--color-secondary);
+            opacity: 0.5;
+        }
+        
+        .product-badge {
+            position: absolute;
+            top: var(--spacing-3);
+            left: var(--spacing-3);
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--border-radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-bold);
+        }
+        
+        .product-badge.sale {
+            background: var(--color-danger);
+            color: white;
+        }
+        
+        .product-badge.new {
+            background: var(--color-success);
+            color: white;
+        }
+        
+        .product-badge.hot {
+            background: var(--color-warning);
+            color: white;
+        }
+        
+        .product-body {
+            padding: var(--spacing-4);
+        }
+        
+        .product-category {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .product-name {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-2);
+            line-height: 1.4;
+        }
+        
+        .product-specs {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .product-price {
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .product-price-current {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-extrabold);
+            color: var(--color-primary);
+        }
+        
+        .product-price-original {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+        
+        .product-stock {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .product-stock.low {
+            color: var(--color-warning);
+        }
+        
+        .product-stock.out {
+            color: var(--color-danger);
+        }
+        
+        .product-footer {
+            display: flex;
+            gap: var(--spacing-2);
+        }
+        
+        .product-footer .btn {
+            flex: 1;
+        }
+        
+        /* Order List */
+        .order-list {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+            padding: var(--spacing-4) var(--spacing-5);
+            border-bottom: 1px solid var(--border-color);
+            transition: background var(--transition-fast);
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-item:hover {
+            background: var(--color-gray-50);
+        }
+        
+        .order-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .order-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .order-icon.pending { background: var(--color-warning-light); color: var(--color-warning); }
+        .order-icon.processing { background: var(--color-info-light); color: var(--color-info); }
+        .order-icon.shipped { background: var(--color-primary-light); color: var(--color-primary); }
+        .order-icon.completed { background: var(--color-success-light); color: var(--color-success); }
+        .order-icon.cancelled { background: var(--color-danger-light); color: var(--color-danger); }
+        
+        .order-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .order-id {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .order-customer {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .order-items {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+        
+        .order-meta {
+            text-align: right;
+        }
+        
+        .order-amount {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .order-date {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .order-status {
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--border-radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .order-status.pending { background: var(--color-warning-light); color: #92400e; }
+        .order-status.processing { background: var(--color-info-light); color: var(--color-info-dark); }
+        .order-status.shipped { background: var(--color-primary-light); color: var(--color-primary-dark); }
+        .order-status.completed { background: var(--color-success-light); color: #065f46; }
+        .order-status.cancelled { background: var(--color-danger-light); color: #991b1b; }
+        
+        /* Service Cards */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-4);
+        }
+        
+        .service-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+            padding: var(--spacing-5);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .service-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        .service-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto var(--spacing-4);
+            border-radius: var(--border-radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .service-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .service-icon.cuci { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; }
+        .service-icon.pasang { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .service-icon.service { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .service-icon.bongkar { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
+        
+        .service-name {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .service-desc {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .service-price {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-extrabold);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .service-price span {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-normal);
+            color: var(--text-muted);
+        }
+        
+        /* Tabs & Filter */
+        .page-tabs {
+            display: flex;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-6);
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+        }
+        
+        .page-tab {
+            padding: var(--spacing-3) var(--spacing-5);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .page-tab:hover { color: var(--text-primary); }
+        .page-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+        
+        .tab-badge {
+            background: var(--color-danger);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: var(--spacing-2);
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-4);
+            margin-bottom: var(--spacing-6);
+            padding: var(--spacing-4);
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+        
+        .filter-group label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: var(--spacing-2) var(--spacing-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-sm);
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 36px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-sm);
+        }
+        
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 767px) {
+            .filter-bar { flex-direction: column; }
+            .filter-group { width: 100%; }
+            .filter-group select { flex: 1; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+            .product-image { height: 140px; }
+        }
+    </style>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="sidebar-header">
+                <a href="../index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <span class="sidebar-logo-title">Nala Aircon</span>
+                        <span class="sidebar-logo-subtitle">Management System</span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Menu Utama</span>
+                    <ul>
+                        <li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Modul</span>
+                    <ul>
+                        <li class="nav-item"><a href="freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                        <li class="nav-item"><a href="financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/></svg></span><span class="nav-text">Financing</span></a></li>
+                        <li class="nav-item"><a href="inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                        <li class="nav-item"><a href="absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                        <li class="nav-item"><a href="database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/></svg></span><span class="nav-text">Database</span></a></li>
+                        <li class="nav-item"><a href="kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                        <li class="nav-item"><a href="marketplace.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                    </ul>
+                </div>
+            
+                <div class="nav-section">
+                    <span class="nav-section-title">Laporan</span>
+                    <ul>
+                        <li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg></span><span class="nav-text">Laporan</span></a></li>
+                    </ul>
+                </div>
+            
+                <div class="nav-section">
+                    <span class="nav-section-title">Pengaturan</span>
+                    <ul>
+                        <li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="nav-text">Pengaturan</span></a></li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">AD</div>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name">Administrator</span>
+                        <span class="sidebar-user-role">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+
+        <main class="main-content">
+            <header class="header" id="header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                    <nav class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="../index.html">Home</a></span>
+                        <span class="breadcrumb-separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+                        <span class="breadcrumb-item active">Marketplace</span>
+                    </nav>
+                </div>
+                <div class="header-right">
+                    <div class="header-datetime">
+                        <span class="header-time" id="headerTime">00:00:00</span>
+                        <span class="header-date" id="headerDate">Loading...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Marketplace</h1>
+                    <p class="page-subtitle">Kelola produk dan pesanan online</p>
+                </div>
+
+                <!-- Summary -->
+                <div class="market-summary">
+                    <div class="market-card highlight">
+                        <div class="market-card-value">Rp 45.5M</div>
+                        <div class="market-card-label">Total Penjualan</div>
+                    </div>
+                    <div class="market-card">
+                        <div class="market-card-value" style="color: var(--color-warning);">12</div>
+                        <div class="market-card-label">Pesanan Pending</div>
+                    </div>
+                    <div class="market-card">
+                        <div class="market-card-value" style="color: var(--color-info);">8</div>
+                        <div class="market-card-label">Dalam Proses</div>
+                    </div>
+                    <div class="market-card">
+                        <div class="market-card-value" style="color: var(--color-success);">156</div>
+                        <div class="market-card-label">Selesai (Bulan Ini)</div>
+                    </div>
+                    <div class="market-card">
+                        <div class="market-card-value" style="color: var(--color-primary);">48</div>
+                        <div class="market-card-label">Produk Aktif</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="page-tabs">
+                    <div class="page-tab active" data-tab="products">🛒 Produk</div>
+                    <div class="page-tab" data-tab="services">🔧 Layanan Jasa</div>
+                    <div class="page-tab" data-tab="orders">
+                        📦 Pesanan
+                        <span class="tab-badge">12</span>
+                    </div>
+                    <div class="page-tab" data-tab="analytics">📊 Analitik</div>
+                </div>
+
+                <!-- Tab: Products -->
+                <div class="tab-content active" id="tab-products">
+                    <div class="filter-bar">
+                        <div class="search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input type="text" placeholder="Cari produk...">
+                        </div>
+                        <div class="filter-group">
+                            <label>Kategori:</label>
+                            <select>
+                                <option value="">Semua</option>
+                                <option>AC Split</option>
+                                <option>AC Cassette</option>
+                                <option>AC Standing</option>
+                                <option>Spare Part</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Brand:</label>
+                            <select>
+                                <option value="">Semua</option>
+                                <option>Daikin</option>
+                                <option>Panasonic</option>
+                                <option>LG</option>
+                                <option>Samsung</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-primary btn-sm">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                Tambah Produk
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="product-grid">
+                        <!-- Product 1 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg>
+                                <span class="product-badge hot">🔥 HOT</span>
+                            </div>
+                            <div class="product-body">
+                                <div class="product-category">AC Split</div>
+                                <div class="product-name">Daikin FTKQ25TVM 1PK Inverter</div>
+                                <div class="product-specs">Inverter • R32 • 9000 BTU • Wifi Ready</div>
+                                <div class="product-price">
+                                    <span class="product-price-current">Rp 5.500.000</span>
+                                </div>
+                                <div class="product-stock">Stok: 5 unit</div>
+                                <div class="product-footer">
+                                    <button class="btn btn-sm btn-outline">Edit</button>
+                                    <button class="btn btn-sm btn-primary">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product 2 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg>
+                                <span class="product-badge sale">-10%</span>
+                            </div>
+                            <div class="product-body">
+                                <div class="product-category">AC Split</div>
+                                <div class="product-name">Panasonic CS-PU9XKJ 1PK Standard</div>
+                                <div class="product-specs">Standard • R32 • 9000 BTU</div>
+                                <div class="product-price">
+                                    <span class="product-price-current">Rp 3.780.000</span>
+                                    <span class="product-price-original">Rp 4.200.000</span>
+                                </div>
+                                <div class="product-stock low">Stok: 3 unit (Menipis!)</div>
+                                <div class="product-footer">
+                                    <button class="btn btn-sm btn-outline">Edit</button>
+                                    <button class="btn btn-sm btn-primary">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product 3 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg>
+                                <span class="product-badge new">NEW</span>
+                            </div>
+                            <div class="product-body">
+                                <div class="product-category">AC Split</div>
+                                <div class="product-name">LG S10EV4 1PK Dual Inverter</div>
+                                <div class="product-specs">Dual Inverter • R32 • 9500 BTU • ThinQ</div>
+                                <div class="product-price">
+                                    <span class="product-price-current">Rp 4.850.000</span>
+                                </div>
+                                <div class="product-stock">Stok: 8 unit</div>
+                                <div class="product-footer">
+                                    <button class="btn btn-sm btn-outline">Edit</button>
+                                    <button class="btn btn-sm btn-primary">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product 4 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg>
+                            </div>
+                            <div class="product-body">
+                                <div class="product-category">AC Split</div>
+                                <div class="product-name">Samsung AR10TYHQ 1PK WindFree</div>
+                                <div class="product-specs">Inverter • R32 • WindFree • AI Auto</div>
+                                <div class="product-price">
+                                    <span class="product-price-current">Rp 5.200.000</span>
+                                </div>
+                                <div class="product-stock">Stok: 6 unit</div>
+                                <div class="product-footer">
+                                    <button class="btn btn-sm btn-outline">Edit</button>
+                                    <button class="btn btn-sm btn-primary">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product 5 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg>
+                            </div>
+                            <div class="product-body">
+                                <div class="product-category">AC Split</div>
+                                <div class="product-name">Daikin FTKQ35TVM 1.5PK Inverter</div>
+                                <div class="product-specs">Inverter • R32 • 12000 BTU • Wifi Ready</div>
+                                <div class="product-price">
+                                    <span class="product-price-current">Rp 7.200.000</span>
+                                </div>
+                                <div class="product-stock">Stok: 4 unit</div>
+                                <div class="product-footer">
+                                    <button class="btn btn-sm btn-outline">Edit</button>
+                                    <button class="btn btn-sm btn-primary">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product 6 - Out of Stock -->
+                        <div class="product-card" style="opacity: 0.7;">
+                            <div class="product-image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg>
+                            </div>
+                            <div class="product-body">
+                                <div class="product-category">AC Cassette</div>
+                                <div class="product-name">Daikin FCFC50DVM 2PK Cassette</div>
+                                <div class="product-specs">Cassette • R32 • 18000 BTU</div>
+                                <div class="product-price">
+                                    <span class="product-price-current">Rp 15.500.000</span>
+                                </div>
+                                <div class="product-stock out">Stok: Habis</div>
+                                <div class="product-footer">
+                                    <button class="btn btn-sm btn-outline">Edit</button>
+                                    <button class="btn btn-sm btn-warning">Restock</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Services -->
+                <div class="tab-content" id="tab-services">
+                    <div class="service-grid">
+                        <div class="service-card">
+                            <div class="service-icon cuci">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>
+                            </div>
+                            <div class="service-name">Cuci AC</div>
+                            <div class="service-desc">Pembersihan indoor & outdoor unit, cek freon, dan pengecekan performa</div>
+                            <div class="service-price">Rp 75.000 <span>/unit</span></div>
+                            <button class="btn btn-primary">Edit Harga</button>
+                        </div>
+
+                        <div class="service-card">
+                            <div class="service-icon pasang">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg>
+                            </div>
+                            <div class="service-name">Pasang AC Baru</div>
+                            <div class="service-desc">Instalasi unit baru termasuk bracket, pipa 3m, dan pengetesan</div>
+                            <div class="service-price">Rp 350.000 <span>/unit</span></div>
+                            <button class="btn btn-primary">Edit Harga</button>
+                        </div>
+
+                        <div class="service-card">
+                            <div class="service-icon service">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                            </div>
+                            <div class="service-name">Service Berat</div>
+                            <div class="service-desc">Perbaikan kompresor, ganti kapasitor, tambah freon, dll</div>
+                            <div class="service-price">Rp 250.000 <span>+ sparepart</span></div>
+                            <button class="btn btn-primary">Edit Harga</button>
+                        </div>
+
+                        <div class="service-card">
+                            <div class="service-icon bongkar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+                            </div>
+                            <div class="service-name">Bongkar Pasang</div>
+                            <div class="service-desc">Pindah unit AC dari satu lokasi ke lokasi lain</div>
+                            <div class="service-price">Rp 500.000 <span>/unit</span></div>
+                            <button class="btn btn-primary">Edit Harga</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Orders -->
+                <div class="tab-content" id="tab-orders">
+                    <div class="filter-bar">
+                        <div class="search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input type="text" placeholder="Cari order ID atau nama...">
+                        </div>
+                        <div class="filter-group">
+                            <label>Status:</label>
+                            <select>
+                                <option value="">Semua</option>
+                                <option>Pending</option>
+                                <option>Processing</option>
+                                <option>Shipped</option>
+                                <option>Completed</option>
+                                <option>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Tipe:</label>
+                            <select>
+                                <option value="">Semua</option>
+                                <option>Produk</option>
+                                <option>Jasa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="order-list">
+                        <div class="order-item">
+                            <div class="order-icon pending">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                            </div>
+                            <div class="order-info">
+                                <div class="order-id">#ORD-2025-0012</div>
+                                <div class="order-customer">Hotel Empress Makassar</div>
+                                <div class="order-items">3x Daikin FTKQ25TVM 1PK + Instalasi</div>
+                            </div>
+                            <div class="order-meta">
+                                <div class="order-amount">Rp 17.550.000</div>
+                                <div class="order-date">13 Jan 2025, 10:30</div>
+                                <span class="order-status pending">Pending</span>
+                            </div>
+                        </div>
+
+                        <div class="order-item">
+                            <div class="order-icon processing">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                            </div>
+                            <div class="order-info">
+                                <div class="order-id">#ORD-2025-0011</div>
+                                <div class="order-customer">Ibu Sarah - UPG Dental</div>
+                                <div class="order-items">Service Berat 5 Unit AC</div>
+                            </div>
+                            <div class="order-meta">
+                                <div class="order-amount">Rp 1.750.000</div>
+                                <div class="order-date">12 Jan 2025, 14:15</div>
+                                <span class="order-status processing">Diproses</span>
+                            </div>
+                        </div>
+
+                        <div class="order-item">
+                            <div class="order-icon shipped">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/><path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/><circle cx="7" cy="18" r="2"/><path d="M15 18H9"/><circle cx="17" cy="18" r="2"/></svg>
+                            </div>
+                            <div class="order-info">
+                                <div class="order-id">#ORD-2025-0010</div>
+                                <div class="order-customer">Pak Budi - Griya Asri</div>
+                                <div class="order-items">1x LG S10EV4 1PK + Instalasi</div>
+                            </div>
+                            <div class="order-meta">
+                                <div class="order-amount">Rp 5.200.000</div>
+                                <div class="order-date">11 Jan 2025, 09:00</div>
+                                <span class="order-status shipped">Dikirim</span>
+                            </div>
+                        </div>
+
+                        <div class="order-item">
+                            <div class="order-icon completed">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                            </div>
+                            <div class="order-info">
+                                <div class="order-id">#ORD-2025-0009</div>
+                                <div class="order-customer">CV Maju Jaya</div>
+                                <div class="order-items">Cuci AC 10 Unit</div>
+                            </div>
+                            <div class="order-meta">
+                                <div class="order-amount">Rp 750.000</div>
+                                <div class="order-date">10 Jan 2025, 11:30</div>
+                                <span class="order-status completed">Selesai</span>
+                            </div>
+                        </div>
+
+                        <div class="order-item">
+                            <div class="order-icon cancelled">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                            </div>
+                            <div class="order-info">
+                                <div class="order-id">#ORD-2025-0008</div>
+                                <div class="order-customer">Rudi Hermawan</div>
+                                <div class="order-items">1x Samsung AR10TYHQ 1PK</div>
+                            </div>
+                            <div class="order-meta">
+                                <div class="order-amount">Rp 5.200.000</div>
+                                <div class="order-date">9 Jan 2025, 16:45</div>
+                                <span class="order-status cancelled">Dibatalkan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Analytics -->
+                <div class="tab-content" id="tab-analytics">
+                    <div class="market-summary">
+                        <div class="market-card">
+                            <div class="market-card-value" style="color: var(--color-success);">Rp 45.5M</div>
+                            <div class="market-card-label">Total Penjualan Bulan Ini</div>
+                        </div>
+                        <div class="market-card">
+                            <div class="market-card-value" style="color: var(--color-primary);">176</div>
+                            <div class="market-card-label">Total Pesanan</div>
+                        </div>
+                        <div class="market-card">
+                            <div class="market-card-value" style="color: var(--color-info);">Rp 258K</div>
+                            <div class="market-card-label">Rata-rata Order</div>
+                        </div>
+                        <div class="market-card">
+                            <div class="market-card-value" style="color: var(--color-warning);">92%</div>
+                            <div class="market-card-label">Completion Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Produk Terlaris</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Produk/Jasa</th>
+                                            <th>Terjual</th>
+                                            <th>Revenue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span style="color: gold; font-weight: bold;">🥇 1</span></td>
+                                            <td>Cuci AC</td>
+                                            <td>89 unit</td>
+                                            <td>Rp 6.675.000</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span style="color: silver; font-weight: bold;">🥈 2</span></td>
+                                            <td>Daikin FTKQ25TVM 1PK</td>
+                                            <td>24 unit</td>
+                                            <td>Rp 13.200.000</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span style="color: #cd7f32; font-weight: bold;">🥉 3</span></td>
+                                            <td>Pasang AC Baru</td>
+                                            <td>32 unit</td>
+                                            <td>Rp 11.200.000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>Service Berat</td>
+                                            <td>18 unit</td>
+                                            <td>Rp 4.500.000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td>LG S10EV4 1PK</td>
+                                            <td>12 unit</td>
+                                            <td>Rp 5.820.000</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+    <script src="../js/components/header.js"></script>
+    <script>
+        document.querySelectorAll('.page-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+        
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('headerTime').textContent = now.toLocaleTimeString('id-ID');
+            document.getElementById('headerDate').textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

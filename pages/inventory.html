@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - Nala Aircon</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif}
+        .main-content{margin-left:260px;min-height:100vh}
+        .page-header{background:linear-gradient(135deg,#0891b2 0%,#06b6d4 100%);color:white;padding:2rem;border-radius:0 0 1.5rem 1.5rem;margin:-1.5rem -1.5rem 1.5rem}
+        .page-header h1{font-weight:700;margin-bottom:.25rem}
+        .page-header p{opacity:.9;margin:0}
+        .stat-card{background:white;border-radius:1rem;padding:1.5rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);text-align:center}
+        .stat-card.primary{background:linear-gradient(135deg,#0891b2,#0e7490);color:white}
+        .stat-icon{width:56px;height:56px;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto .75rem}
+        .stat-icon.total{background:rgba(255,255,255,.2)}
+        .stat-icon.material{background:#dbeafe;color:#2563eb}
+        .stat-icon.ac{background:#d1fae5;color:#059669}
+        .stat-icon.low{background:#fef3c7;color:#d97706}
+        .stat-value{font-size:2.5rem;font-weight:700}
+        .stat-label{font-size:.875rem;opacity:.8}
+        .stock-card{background:white;border-radius:1rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow:hidden;cursor:pointer;transition:all .2s}
+        .stock-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px)}
+        .stock-header{padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid #f1f5f9}
+        .stock-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
+        .stock-icon.material{background:#dbeafe;color:#2563eb}
+        .stock-icon.ac{background:#d1fae5;color:#059669}
+        .stock-name{font-size:1rem;font-weight:600;color:#1e293b;margin-bottom:.125rem}
+        .stock-notes{font-size:.75rem;color:#94a3b8}
+        .stock-body{padding:1rem 1.25rem}
+        .stock-qty{font-size:1.75rem;font-weight:700}
+        .stock-qty.safe{color:#10b981}
+        .stock-qty.low{color:#f59e0b}
+        .stock-qty.critical{color:#ef4444}
+        .stock-status{font-size:.7rem;padding:.25rem .625rem;border-radius:2rem;font-weight:600}
+        .status-safe{background:#d1fae5;color:#047857}
+        .status-low{background:#fef3c7;color:#92400e}
+        .status-critical{background:#fee2e2;color:#dc2626}
+        .stock-meta{font-size:.8rem;color:#64748b;margin-top:.5rem}
+        .movement-item{padding:.625rem;background:#f8fafc;border-radius:.5rem;margin-bottom:.5rem;font-size:.8rem;display:flex;align-items:center;gap:.75rem}
+        .movement-item.out{border-left:3px solid #ef4444}
+        .movement-item.in{border-left:3px solid #10b981}
+        .movement-qty{font-weight:600}
+        .movement-qty.out{color:#ef4444}
+        .movement-qty.in{color:#10b981}
+        .empty-state{text-align:center;padding:4rem 2rem;background:white;border-radius:1rem;color:#94a3b8}
+        .empty-state i{font-size:3rem;margin-bottom:1rem;opacity:.5}
+        .nav-pills .nav-link{color:#64748b;font-weight:500;padding:.75rem 1.5rem;border-radius:.5rem}
+        .nav-pills .nav-link:hover{background:#f1f5f9;color:#1e293b}
+        .nav-pills .nav-link.active{background:#0891b2;color:white}
+        @media(max-width:991px){.main-content{margin-left:0}}
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="sidebar-header">
+                <a href="../index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg></div>
+                    <div class="sidebar-logo-text"><span class="sidebar-logo-title">Nala Aircon</span><span class="sidebar-logo-subtitle">Management System</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><span class="nav-section-title">Menu Utama</span>
+                    <ul><li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Modul</span>
+                    <ul>
+                        <li class="nav-item"><a href="freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                        <li class="nav-item"><a href="financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="nav-text">Financing</span></a></li>
+                        <li class="nav-item"><a href="inventory.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                        <li class="nav-item"><a href="absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                        <li class="nav-item"><a href="database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span><span class="nav-text">Database</span></a></li>
+                        <li class="nav-item"><a href="kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                        <li class="nav-item"><a href="marketplace.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                    </ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Laporan</span>
+                    <ul><li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Laporan</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Pengaturan</span>
+                    <ul><li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="nav-text">Pengaturan</span></a></li></ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-user-avatar">AD</div><div class="sidebar-user-info"><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Admin</span></div></div></div>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="p-4">
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1><i class="bi bi-box-seam me-2"></i>Inventory</h1>
+                            <p>Kelola stok material dan unit AC</p>
+                        </div>
+                        <button class="btn btn-light" onclick="loadData()"><i class="bi bi-arrow-clockwise"></i></button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card primary">
+                            <div class="stat-icon total"><i class="bi bi-boxes"></i></div>
+                            <div class="stat-value" id="statTotal">0</div>
+                            <div class="stat-label">Total Item</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <div class="stat-icon material"><i class="bi bi-box"></i></div>
+                            <div class="stat-value" id="statMaterial">0</div>
+                            <div class="stat-label">Material</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <div class="stat-icon ac"><i class="bi bi-snow"></i></div>
+                            <div class="stat-value" id="statAC">0</div>
+                            <div class="stat-label">Unit AC</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <div class="stat-icon low"><i class="bi bi-exclamation-triangle"></i></div>
+                            <div class="stat-value" id="statLow">0</div>
+                            <div class="stat-label">Stok Menipis</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs & Filter -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <ul class="nav nav-pills" id="invTabs">
+                                <li class="nav-item"><a class="nav-link active" href="#" data-tab="material">Material</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#" data-tab="ac">Unit AC</a></li>
+                            </ul>
+                            <div class="d-flex gap-2">
+                                <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Cari..." style="width:200px">
+                                <button class="btn btn-primary btn-sm" onclick="openAddModal()"><i class="bi bi-plus-lg me-1"></i>Tambah</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Grid -->
+                <div class="row g-4" id="stockGrid">
+                    <div class="col-12"><div class="empty-state"><i class="bi bi-hourglass"></i><h5>Memuat...</h5></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Tambah Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="itemForm">
+                        <input type="hidden" id="itemId">
+                        <div class="mb-3">
+                            <label class="form-label">Nama Item *</label>
+                            <input type="text" class="form-control" id="itemName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategori *</label>
+                            <select class="form-select" id="itemCategory">
+                                <option value="material">Material</option>
+                                <option value="ac">Unit AC</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Jumlah *</label>
+                                <input type="number" class="form-control" id="itemQty" min="0" value="0" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Satuan</label>
+                                <input type="text" class="form-control" id="itemUnit" placeholder="pcs, meter, kg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Min. Stok</label>
+                                <input type="number" class="form-control" id="itemMinStock" min="0" value="5">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Harga Satuan</label>
+                                <input type="number" class="form-control" id="itemPrice" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catatan</label>
+                            <input type="text" class="form-control" id="itemNotes">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveItem()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailTitle">Detail Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" onclick="deleteItem()"><i class="bi bi-trash me-1"></i>Hapus</button>
+                    <button type="button" class="btn btn-primary" onclick="editItem()"><i class="bi bi-pencil me-1"></i>Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+    let inventory=[],bookings=[],currentItem=null,currentTab='material';
+    let addModalEl,detailModalEl;
+
+    document.addEventListener('DOMContentLoaded',async()=>{
+        addModalEl=new bootstrap.Modal(document.getElementById('addModal'));
+        detailModalEl=new bootstrap.Modal(document.getElementById('detailModal'));
+        
+        document.querySelectorAll('#invTabs .nav-link').forEach(tab=>{
+            tab.onclick=(e)=>{
+                e.preventDefault();
+                document.querySelectorAll('#invTabs .nav-link').forEach(t=>t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab=tab.dataset.tab;
+                renderStock();
+            };
+        });
+        
+        document.getElementById('searchInput').oninput=()=>renderStock();
+        await loadData();
+    });
+
+    async function loadData(){
+        try{
+            [inventory,bookings]=await Promise.all([db.inventory.getAll(),db.bookings.getAll()]);
+            updateStats();
+            renderStock();
+        }catch(e){console.error(e);toast('Gagal memuat data','danger');}
+    }
+
+    function updateStats(){
+        const materials=inventory.filter(i=>i.category==='material');
+        const acs=inventory.filter(i=>i.category==='ac');
+        const low=inventory.filter(i=>(i.quantity||0)<=(i.min_stock||5));
+        document.getElementById('statTotal').textContent=inventory.length;
+        document.getElementById('statMaterial').textContent=materials.length;
+        document.getElementById('statAC').textContent=acs.length;
+        document.getElementById('statLow').textContent=low.length;
+    }
+
+    function getStockStatus(qty,min){
+        if(qty<=0)return{class:'critical',label:'Habis'};
+        if(qty<=min)return{class:'low',label:'Menipis'};
+        return{class:'safe',label:'Aman'};
+    }
+
+    function getItemMovements(itemId){
+        const movements=[];
+        bookings.filter(b=>b.status==='completed'&&b.used_materials).forEach(b=>{
+            try{
+                const mats=typeof b.used_materials==='string'?JSON.parse(b.used_materials):b.used_materials;
+                const used=mats.find(m=>m.inventory_id===itemId);
+                if(used){movements.push({type:'out',quantity:used.quantity,date:b.completed_at||b.service_date,notes:`Freshmo - ${b.customer_name}`,service:b.service_type});}
+            }catch(e){}
+        });
+        return movements.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    }
+
+    function renderStock(){
+        const grid=document.getElementById('stockGrid');
+        const search=document.getElementById('searchInput').value.toLowerCase();
+        let items=inventory.filter(i=>i.category===currentTab);
+        if(search)items=items.filter(i=>i.name.toLowerCase().includes(search));
+        
+        if(!items.length){
+            grid.innerHTML=`<div class="col-12"><div class="empty-state"><i class="bi bi-inbox"></i><h5>Tidak ada ${currentTab==='material'?'material':'unit AC'}</h5><p>Klik tombol Tambah untuk menambah item baru</p></div></div>`;
+            return;
+        }
+        grid.innerHTML=items.map(i=>`<div class="col-md-6 col-xl-4">${renderCard(i)}</div>`).join('');
+    }
+
+    function renderCard(item){
+        const status=getStockStatus(item.quantity||0,item.min_stock||5);
+        const movements=getItemMovements(item.id);
+        const lastMove=movements[0];
+        
+        return `<div class="stock-card" onclick="showDetail('${item.id}')">
+            <div class="stock-header">
+                <div class="stock-icon ${item.category}"><i class="bi bi-${item.category==='material'?'box':'snow'}"></i></div>
+                <div class="flex-grow-1">
+                    <div class="stock-name">${item.name}</div>
+                    <div class="stock-notes">${item.notes||'Tidak ada catatan'}</div>
+                </div>
+            </div>
+            <div class="stock-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><span class="stock-qty ${status.class}">${item.quantity||0}</span> <span class="text-muted">${item.unit||'pcs'}</span></div>
+                    <span class="stock-status status-${status.class}">${status.label}</span>
+                </div>
+                <div class="stock-meta">
+                    <i class="bi bi-arrow-down-circle me-1"></i>Min: ${item.min_stock||5} • 
+                    <i class="bi bi-tag me-1"></i>Rp ${(item.unit_price||0).toLocaleString('id')}
+                    ${lastMove?`<br><i class="bi bi-clock me-1"></i>Terakhir: ${formatDate(lastMove.date)}`:''}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function showDetail(id){
+        currentItem=inventory.find(i=>i.id===id);
+        if(!currentItem)return;
+        
+        const status=getStockStatus(currentItem.quantity||0,currentItem.min_stock||5);
+        const movements=getItemMovements(id);
+        
+        let movementHTML='<div class="mt-4"><h6 class="fw-semibold mb-3"><i class="bi bi-clock-history me-2"></i>Riwayat Pergerakan</h6>';
+        if(movements.length){
+            movementHTML+=`<div style="max-height:200px;overflow-y:auto">${movements.slice(0,10).map(m=>`
+                <div class="movement-item ${m.type}">
+                    <div class="flex-grow-1"><div class="fw-medium">${m.notes}</div><div class="text-muted small">${formatDate(m.date)} • ${m.service||''}</div></div>
+                    <div class="movement-qty ${m.type}">${m.type==='out'?'-':'+'}${m.quantity}</div>
+                </div>
+            `).join('')}</div>`;
+            if(movements.length>10)movementHTML+=`<div class="text-muted small mt-2">+ ${movements.length-10} pergerakan lainnya</div>`;
+        }else{
+            movementHTML+='<div class="text-muted">Belum ada pergerakan</div>';
+        }
+        movementHTML+='</div>';
+        
+        document.getElementById('detailTitle').textContent=currentItem.name;
+        document.getElementById('detailBody').innerHTML=`
+            <div class="row g-3 mb-3">
+                <div class="col-6"><div class="bg-light rounded-3 p-3 text-center"><div class="stock-qty ${status.class}">${currentItem.quantity||0}</div><div class="text-muted small">${currentItem.unit||'pcs'}</div></div></div>
+                <div class="col-6"><div class="bg-light rounded-3 p-3 text-center"><div class="fs-4 fw-bold">Rp ${(currentItem.unit_price||0).toLocaleString('id')}</div><div class="text-muted small">Harga Satuan</div></div></div>
+            </div>
+            <table class="table table-sm">
+                <tr><td class="text-muted">Status</td><td class="text-end"><span class="stock-status status-${status.class}">${status.label}</span></td></tr>
+                <tr><td class="text-muted">Min. Stok</td><td class="text-end">${currentItem.min_stock||5} ${currentItem.unit||'pcs'}</td></tr>
+                <tr><td class="text-muted">Kategori</td><td class="text-end">${currentItem.category==='material'?'Material':'Unit AC'}</td></tr>
+                <tr><td class="text-muted">Catatan</td><td class="text-end">${currentItem.notes||'-'}</td></tr>
+            </table>
+            ${movementHTML}
+        `;
+        detailModalEl.show();
+    }
+
+    function openAddModal(){
+        document.getElementById('modalTitle').textContent='Tambah Item';
+        document.getElementById('itemId').value='';
+        document.getElementById('itemForm').reset();
+        document.getElementById('itemCategory').value=currentTab;
+        addModalEl.show();
+    }
+
+    function editItem(){
+        if(!currentItem)return;
+        detailModalEl.hide();
+        document.getElementById('modalTitle').textContent='Edit '+currentItem.name;
+        document.getElementById('itemId').value=currentItem.id;
+        document.getElementById('itemName').value=currentItem.name;
+        document.getElementById('itemCategory').value=currentItem.category;
+        document.getElementById('itemQty').value=currentItem.quantity||0;
+        document.getElementById('itemUnit').value=currentItem.unit||'';
+        document.getElementById('itemMinStock').value=currentItem.min_stock||5;
+        document.getElementById('itemPrice').value=currentItem.unit_price||0;
+        document.getElementById('itemNotes').value=currentItem.notes||'';
+        addModalEl.show();
+    }
+
+    async function saveItem(){
+        const id=document.getElementById('itemId').value;
+        const data={
+            name:document.getElementById('itemName').value,
+            category:document.getElementById('itemCategory').value,
+            quantity:parseFloat(document.getElementById('itemQty').value)||0,
+            unit:document.getElementById('itemUnit').value||'pcs',
+            min_stock:parseFloat(document.getElementById('itemMinStock').value)||5,
+            unit_price:parseFloat(document.getElementById('itemPrice').value)||0,
+            notes:document.getElementById('itemNotes').value
+        };
+        if(!data.name){toast('Nama wajib diisi','warning');return;}
+        try{
+            if(id){await db.inventory.update(id,data);toast('Item diperbarui','success');}
+            else{await db.inventory.create(data);toast('Item ditambahkan','success');}
+            addModalEl.hide();
+            await loadData();
+        }catch(e){console.error(e);toast('Gagal menyimpan','danger');}
+    }
+
+    async function deleteItem(){
+        if(!currentItem)return;
+        if(!confirm(`Hapus "${currentItem.name}"?`))return;
+        try{
+            await db.inventory.delete(currentItem.id);
+            toast('Item dihapus','success');
+            detailModalEl.hide();
+            await loadData();
+        }catch(e){console.error(e);toast('Gagal menghapus','danger');}
+    }
+
+    function toast(msg,type='primary'){
+        const html=`<div class="toast show align-items-center text-white bg-${type} border-0" role="alert">
+            <div class="d-flex"><div class="toast-body">${msg}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+        document.getElementById('toastContainer').insertAdjacentHTML('beforeend',html);
+        setTimeout(()=>document.querySelector('.toast')?.remove(),3000);
+    }
+    </script>
+</body>
+</html>

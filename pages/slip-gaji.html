@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slip Gaji - Nala Aircon</title>
+    
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/cards.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <style>
+        /* Slip Gaji Styles */
+        .slip-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .slip-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: var(--spacing-6);
+        }
+
+        .slip-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: var(--spacing-6);
+            text-align: center;
+        }
+
+        .slip-header-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--border-radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-4);
+        }
+
+        .slip-header-logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .slip-header h1 {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .slip-header p {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+        }
+
+        .slip-employee {
+            padding: var(--spacing-5);
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .slip-employee-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .slip-employee-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slip-employee-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+
+        .slip-body {
+            padding: var(--spacing-5);
+        }
+
+        .slip-section {
+            margin-bottom: var(--spacing-5);
+        }
+
+        .slip-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .slip-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            padding: var(--spacing-3);
+            background: var(--color-gray-100);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .slip-section-title svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .slip-section-title.income {
+            background: var(--color-success-light);
+            color: #065f46;
+        }
+
+        .slip-section-title.deduction {
+            background: var(--color-danger-light);
+            color: #991b1b;
+        }
+
+        .slip-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-3) var(--spacing-4);
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .slip-row:last-child {
+            border-bottom: none;
+        }
+
+        .slip-row-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .slip-row-sublabel {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .slip-row-value {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+
+        .slip-row-value.income {
+            color: var(--color-success);
+        }
+
+        .slip-row-value.deduction {
+            color: var(--color-danger);
+        }
+
+        .slip-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-4);
+            background: var(--color-gray-50);
+            border-radius: var(--border-radius-md);
+            margin-top: var(--spacing-3);
+        }
+
+        .slip-total-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .slip-total-value {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .slip-total-value.income {
+            color: var(--color-success);
+        }
+
+        .slip-total-value.deduction {
+            color: var(--color-danger);
+        }
+
+        .slip-nett {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: var(--spacing-5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slip-nett-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .slip-nett-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-extrabold);
+        }
+
+        .slip-footer {
+            padding: var(--spacing-4) var(--spacing-5);
+            background: var(--color-gray-50);
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* KPI Detail */
+        .kpi-detail {
+            background: var(--color-gray-50);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-4);
+            margin: var(--spacing-3) var(--spacing-4);
+        }
+
+        .kpi-detail-title {
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-3);
+        }
+
+        .kpi-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-3);
+        }
+
+        .kpi-detail-item {
+            text-align: center;
+        }
+
+        .kpi-detail-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .kpi-detail-value {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .kpi-detail-value.achieved {
+            color: var(--color-success);
+        }
+
+        .kpi-detail-value.partial {
+            color: var(--color-warning);
+        }
+
+        .kpi-detail-value.low {
+            color: var(--color-danger);
+        }
+
+        /* Filter */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-4);
+            margin-bottom: var(--spacing-6);
+            padding: var(--spacing-4);
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .filter-group label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+        }
+
+        .filter-group select {
+            padding: var(--spacing-2) var(--spacing-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-sm);
+        }
+
+        @media (max-width: 767px) {
+            .slip-employee {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .kpi-detail-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media print {
+            .sidebar, .header, .filter-bar, .page-header {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .slip-card {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+        }
+    </style>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="sidebar-header">
+                <a href="../index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <span class="sidebar-logo-title">Nala Aircon</span>
+                        <span class="sidebar-logo-subtitle">Management System</span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Menu Utama</span>
+                    <ul>
+                        <li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Modul</span>
+                    <ul>
+                        <li class="nav-item"><a href="freshmo.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                        <li class="nav-item"><a href="financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="nav-text">Financing</span></a></li>
+                        <li class="nav-item"><a href="inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                        <li class="nav-item"><a href="absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                        <li class="nav-item"><a href="database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/></svg></span><span class="nav-text">Database</span></a></li>
+                        <li class="nav-item"><a href="kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                        <li class="nav-item"><a href="slip-gaji.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></span><span class="nav-text">Slip Gaji</span></a></li>
+                    </ul>
+                </div>
+            
+                <div class="nav-section">
+                    <span class="nav-section-title">Laporan</span>
+                    <ul>
+                        <li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg></span><span class="nav-text">Laporan</span></a></li>
+                    </ul>
+                </div>
+            
+                <div class="nav-section">
+                    <span class="nav-section-title">Pengaturan</span>
+                    <ul>
+                        <li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="nav-text">Pengaturan</span></a></li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">AD</div>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name">Administrator</span>
+                        <span class="sidebar-user-role">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+
+        <main class="main-content">
+            <header class="header" id="header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                    <nav class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="../index.html">Home</a></span>
+                        <span class="breadcrumb-separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+                        <span class="breadcrumb-item active">Slip Gaji</span>
+                    </nav>
+                </div>
+                <div class="header-right">
+                    <div class="header-datetime">
+                        <span class="header-time" id="headerTime">00:00:00</span>
+                        <span class="header-date" id="headerDate">Loading...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Slip Gaji</h1>
+                    <p class="page-subtitle">Generate dan cetak slip gaji karyawan</p>
+                </div>
+
+                <!-- Filter -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Pegawai:</label>
+                        <select id="filterEmployee">
+                            <option value="emp_1">Ahmad Hidayat - Teknisi</option>
+                            <option value="emp_2">Budi Santoso - Junior Teknisi</option>
+                            <option value="emp_3">Cahyo Riyadi - Teknisi</option>
+                            <option value="emp_4">Deni Pratama - Helper</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Periode:</label>
+                        <select id="filterPeriod">
+                            <option value="2025-01">Januari 2025</option>
+                            <option value="2024-12">Desember 2024</option>
+                            <option value="2024-11">November 2024</option>
+                        </select>
+                    </div>
+                    <div class="filter-group ml-auto">
+                        <button class="btn btn-outline btn-sm" onclick="window.print()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                            Cetak
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="generateSlip()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                            Generate Slip
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Slip Gaji Preview -->
+                <div class="slip-container">
+                    <div class="slip-card" id="slipGaji">
+                        <!-- Header -->
+                        <div class="slip-header">
+                            <div class="slip-header-logo">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="4" width="20" height="12" rx="2"/>
+                                    <path d="M6 20h12"/><path d="M12 16v4"/>
+                                    <path d="M8 8h8"/><path d="M8 12h8"/>
+                                </svg>
+                            </div>
+                            <h1>CV NALA KARYA</h1>
+                            <p>SLIP GAJI KARYAWAN</p>
+                        </div>
+
+                        <!-- Employee Info -->
+                        <div class="slip-employee">
+                            <div class="slip-employee-item">
+                                <span class="slip-employee-label">Nama</span>
+                                <span class="slip-employee-value" id="slipName">Ahmad Hidayat</span>
+                            </div>
+                            <div class="slip-employee-item">
+                                <span class="slip-employee-label">Jabatan</span>
+                                <span class="slip-employee-value" id="slipPosition">Teknisi</span>
+                            </div>
+                            <div class="slip-employee-item">
+                                <span class="slip-employee-label">Cabang</span>
+                                <span class="slip-employee-value" id="slipBranch">Makassar</span>
+                            </div>
+                            <div class="slip-employee-item">
+                                <span class="slip-employee-label">Periode</span>
+                                <span class="slip-employee-value" id="slipPeriod">Januari 2025</span>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="slip-body">
+                            <!-- Pendapatan -->
+                            <div class="slip-section">
+                                <div class="slip-section-title income">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    PENDAPATAN
+                                </div>
+                                <div class="slip-row">
+                                    <div>
+                                        <div class="slip-row-label">Gaji Pokok</div>
+                                        <div class="slip-row-sublabel" id="slipWorkDays">22 hari × Rp 150.000</div>
+                                    </div>
+                                    <div class="slip-row-value income" id="slipBaseSalary">Rp 3.300.000</div>
+                                </div>
+                                <div class="slip-row">
+                                    <div>
+                                        <div class="slip-row-label">Lembur</div>
+                                        <div class="slip-row-sublabel" id="slipOvertimeDetail">12 jam × Rp 20.000</div>
+                                    </div>
+                                    <div class="slip-row-value income" id="slipOvertime">Rp 240.000</div>
+                                </div>
+                                <div class="slip-row">
+                                    <div>
+                                        <div class="slip-row-label">Uang Makan</div>
+                                        <div class="slip-row-sublabel">Dari modul Financing</div>
+                                    </div>
+                                    <div class="slip-row-value income" id="slipMealAllowance">Rp 550.000</div>
+                                </div>
+                                <div class="slip-total">
+                                    <span class="slip-total-label">Total Pendapatan</span>
+                                    <span class="slip-total-value income" id="slipTotalIncome">Rp 4.090.000</span>
+                                </div>
+                            </div>
+
+                            <!-- Potongan -->
+                            <div class="slip-section">
+                                <div class="slip-section-title deduction">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                                    POTONGAN
+                                </div>
+                                <div class="slip-row">
+                                    <div>
+                                        <div class="slip-row-label">Kasbon</div>
+                                        <div class="slip-row-sublabel">Potong penuh (tidak dicicil)</div>
+                                    </div>
+                                    <div class="slip-row-value deduction" id="slipKasbon">Rp 500.000</div>
+                                </div>
+                                <div class="slip-row">
+                                    <div>
+                                        <div class="slip-row-label">Denda Telat</div>
+                                        <div class="slip-row-sublabel" id="slipLateDetail">3 jam × Rp 10.000</div>
+                                    </div>
+                                    <div class="slip-row-value deduction" id="slipLatePenalty">Rp 30.000</div>
+                                </div>
+                                <div class="slip-row">
+                                    <div>
+                                        <div class="slip-row-label">Potongan KPI</div>
+                                        <div class="slip-row-sublabel" id="slipKpiDetail">Pencapaian 87.5% → Potongan 12.5%</div>
+                                    </div>
+                                    <div class="slip-row-value deduction" id="slipKpiDeduction">Rp 412.500</div>
+                                </div>
+
+                                <!-- KPI Detail Breakdown -->
+                                <div class="kpi-detail">
+                                    <div class="kpi-detail-title">Detail Pencapaian KPI</div>
+                                    <div class="kpi-detail-grid">
+                                        <div class="kpi-detail-item">
+                                            <div class="kpi-detail-label">Cuci AC</div>
+                                            <div class="kpi-detail-value achieved" id="kpiCuci">7/7 (100%)</div>
+                                        </div>
+                                        <div class="kpi-detail-item">
+                                            <div class="kpi-detail-label">Pasang AC</div>
+                                            <div class="kpi-detail-value achieved" id="kpiPasang">3/3 (100%)</div>
+                                        </div>
+                                        <div class="kpi-detail-item">
+                                            <div class="kpi-detail-label">Bongkar Pasang</div>
+                                            <div class="kpi-detail-value partial" id="kpiBongkar">1/2 (50%)</div>
+                                        </div>
+                                        <div class="kpi-detail-item">
+                                            <div class="kpi-detail-label">Service Berat</div>
+                                            <div class="kpi-detail-value achieved" id="kpiService">2/2 (100%)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="slip-total">
+                                    <span class="slip-total-label">Total Potongan</span>
+                                    <span class="slip-total-value deduction" id="slipTotalDeduction">Rp 942.500</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nett Salary -->
+                        <div class="slip-nett">
+                            <span class="slip-nett-label">GAJI BERSIH</span>
+                            <span class="slip-nett-value" id="slipNettSalary">Rp 3.147.500</span>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="slip-footer">
+                            Slip gaji ini digenerate secara otomatis oleh sistem pada <span id="slipGeneratedDate">13 Januari 2025</span><br>
+                            Periode gajian: Tanggal 1 setiap bulan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+    <script src="../js/components/header.js"></script>
+    <script src="../js/components/toast.js"></script>
+    <script>
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('headerTime').textContent = now.toLocaleTimeString('id-ID');
+            document.getElementById('headerDate').textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // ========== DATA STORAGE ==========
+        let employees = [];
+        let employeeData = {};
+
+        // ========== LOAD DATA FROM DATABASE ==========
+        async function loadSlipGajiData() {
+            try {
+                employees = await db.employees.getAll();
+                
+                // Populate employee dropdown
+                const employeeSelect = document.getElementById('filterEmployee');
+                employeeSelect.innerHTML = employees.map(emp => {
+                    const levelName = CONFIG.employeeLevels[emp.level]?.name || emp.level;
+                    return `<option value="${emp.id}">${emp.name} - ${levelName}</option>`;
+                }).join('');
+                
+                // Load data for first employee
+                if (employees.length > 0) {
+                    await loadEmployeeData(employees[0].id);
+                }
+                
+            } catch (error) {
+                console.error('Error loading slip gaji data:', error);
+                toast.error('Gagal memuat data karyawan');
+            }
+        }
+
+        async function loadEmployeeData(employeeId) {
+            try {
+                const emp = employees.find(e => e.id === employeeId);
+                if (!emp) return;
+                
+                const period = document.getElementById('filterPeriod').value;
+                
+                // Load KPI, attendance, and kasbon data in parallel
+                const [kpiRecords, kasbonList] = await Promise.all([
+                    db.kpi.getByEmployee(employeeId),
+                    db.kasbon.getByEmployee(employeeId)
+                ]);
+                
+                // Get KPI for current period
+                const currentKpi = kpiRecords.find(k => k.period === period) || {
+                    cuci_ac: 0, pasang_ac: 0, bongkar_pasang: 0, service_berat: 0
+                };
+                
+                // Calculate active kasbon (unpaid)
+                const activeKasbon = kasbonList
+                    .filter(k => k.status === 'active' && k.period === period)
+                    .reduce((sum, k) => sum + k.amount, 0);
+                
+                // Store employee data
+                const levelConfig = CONFIG.employeeLevels[emp.level] || CONFIG.employeeLevels.helper;
+                
+                employeeData = {
+                    id: emp.id,
+                    name: emp.name,
+                    position: levelConfig.name,
+                    level: emp.level,
+                    branch: emp.branch,
+                    workDays: 22, // Default, would come from attendance
+                    overtimeHours: 0, // Would come from attendance
+                    lateMinutes: 0, // Would come from attendance
+                    uangMakan: 22 * CONFIG.attendance.mealAllowancePerDay, // Estimate
+                    kasbon: activeKasbon,
+                    kpiAchievements: {
+                        cuci_ac: currentKpi.cuci_ac || 0,
+                        pasang_ac: currentKpi.pasang_ac || 0,
+                        bongkar_pasang: currentKpi.bongkar_pasang || 0,
+                        service_berat: currentKpi.service_berat || 0
+                    }
+                };
+                
+                // Generate slip with this data
+                generateSlip();
+                
+            } catch (error) {
+                console.error('Error loading employee data:', error);
+                toast.error('Gagal memuat data karyawan');
+            }
+        }
+
+        // Generate slip gaji
+        function generateSlip() {
+            const emp = employeeData;
+            if (!emp || !emp.id) return;
+
+            // Calculate using CONFIG functions
+            const slipData = generateSalarySlip({
+                employeeLevel: emp.level,
+                workDays: emp.workDays,
+                overtimeHours: emp.overtimeHours,
+                lateMinutes: emp.lateMinutes,
+                uangMakan: emp.uangMakan,
+                kasbon: emp.kasbon,
+                kpiAchievements: emp.kpiAchievements
+            });
+
+            const level = CONFIG.employeeLevels[emp.level];
+
+            // Update employee info
+            document.getElementById('slipName').textContent = emp.name;
+            document.getElementById('slipPosition').textContent = emp.position;
+            document.getElementById('slipBranch').textContent = emp.branch;
+            
+            const period = document.getElementById('filterPeriod').value;
+            const periodDate = new Date(period + '-01');
+            document.getElementById('slipPeriod').textContent = periodDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+            // Update pendapatan
+            document.getElementById('slipWorkDays').textContent = `${emp.workDays} hari × ${formatCurrency(level.dailyRate)}`;
+            document.getElementById('slipBaseSalary').textContent = formatCurrency(slipData.pendapatan.gajiPokok);
+            
+            document.getElementById('slipOvertimeDetail').textContent = `${emp.overtimeHours} jam × ${formatCurrency(level.overtimeRate)}`;
+            document.getElementById('slipOvertime').textContent = formatCurrency(slipData.pendapatan.lembur);
+            
+            document.getElementById('slipMealAllowance').textContent = formatCurrency(slipData.pendapatan.uangMakan);
+            document.getElementById('slipTotalIncome').textContent = formatCurrency(slipData.pendapatan.total);
+
+            // Update potongan
+            document.getElementById('slipKasbon').textContent = formatCurrency(slipData.potongan.kasbon);
+            
+            const lateHours = Math.ceil(emp.lateMinutes / 60);
+            document.getElementById('slipLateDetail').textContent = `${lateHours} jam × ${formatCurrency(CONFIG.attendance.latePenaltyPerHour)}`;
+            document.getElementById('slipLatePenalty').textContent = formatCurrency(slipData.potongan.dendaTelat);
+            
+            document.getElementById('slipKpiDetail').textContent = `Pencapaian ${slipData.kpiDetail.averagePercentage}% → Potongan ${slipData.kpiDetail.deductionPercentage}%`;
+            document.getElementById('slipKpiDeduction').textContent = formatCurrency(slipData.potongan.potonganKpi);
+            document.getElementById('slipTotalDeduction').textContent = formatCurrency(slipData.potongan.total);
+
+            // Update KPI detail
+            const targets = CONFIG.kpiTargets;
+            updateKpiDetail('kpiCuci', emp.kpiAchievements.cuci_ac, targets.cuciAC);
+            updateKpiDetail('kpiPasang', emp.kpiAchievements.pasang_ac, targets.pasangAC);
+            updateKpiDetail('kpiBongkar', emp.kpiAchievements.bongkar_pasang, targets.bongkarPasang);
+            updateKpiDetail('kpiService', emp.kpiAchievements.service_berat, targets.serviceBerat);
+
+            // Update nett salary
+            document.getElementById('slipNettSalary').textContent = formatCurrency(slipData.gajiBersih);
+
+            // Update generated date
+            document.getElementById('slipGeneratedDate').textContent = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function updateKpiDetail(elementId, achieved, target) {
+            const element = document.getElementById(elementId);
+            const percentage = Math.min(Math.round((achieved / target) * 100), 100);
+            element.textContent = `${achieved}/${target} (${percentage}%)`;
+            
+            element.classList.remove('achieved', 'partial', 'low');
+            if (percentage >= 100) {
+                element.classList.add('achieved');
+            } else if (percentage >= 75) {
+                element.classList.add('partial');
+            } else {
+                element.classList.add('low');
+            }
+        }
+
+        // Initialize - load data from database
+        document.addEventListener('DOMContentLoaded', loadSlipGajiData);
+
+        // Update on employee change
+        document.getElementById('filterEmployee').addEventListener('change', function() {
+            loadEmployeeData(this.value);
+        });
+        
+        // Update on period change
+        document.getElementById('filterPeriod').addEventListener('change', function() {
+            const employeeId = document.getElementById('filterEmployee').value;
+            loadEmployeeData(employeeId);
+        });
+    </script>
+</body>
+</html>

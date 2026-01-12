@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freshmo - Nala Aircon</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif}
+        .main-content{margin-left:260px;min-height:100vh;transition:margin .3s}
+        .page-header{background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%);color:white;padding:2rem;border-radius:0 0 1.5rem 1.5rem;margin:-1.5rem -1.5rem 1.5rem}
+        .page-header h1{font-weight:700;margin-bottom:.25rem}
+        .page-header p{opacity:.9;margin:0}
+        .stat-card{background:white;border-radius:1rem;padding:1.25rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .2s;border-left:4px solid;min-height:100px}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        .stat-card.pending{border-left-color:#f59e0b}
+        .stat-card.assigned{border-left-color:#3b82f6}
+        .stat-card.progress{border-left-color:#8b5cf6}
+        .stat-card.completed{border-left-color:#10b981}
+        .stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+        .stat-icon.pending{background:#fef3c7;color:#d97706}
+        .stat-icon.assigned{background:#dbeafe;color:#2563eb}
+        .stat-icon.progress{background:#ede9fe;color:#7c3aed}
+        .stat-icon.completed{background:#d1fae5;color:#059669}
+        .stat-value{font-size:1.75rem;font-weight:700;color:#1e293b}
+        .stat-label{color:#64748b;font-size:.8rem}
+        .filter-tabs .nav-link{color:#64748b;font-weight:500;padding:.75rem 1.25rem;border-radius:.5rem;margin-right:.5rem}
+        .filter-tabs .nav-link:hover{background:#f1f5f9;color:#1e293b}
+        .filter-tabs .nav-link.active{background:#3b82f6;color:white}
+        .booking-card{background:white;border-radius:1rem;border:none;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow:hidden;transition:all .2s}
+        .booking-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        .booking-header{background:#f8fafc;padding:1rem 1.25rem;border-bottom:1px solid #e2e8f0}
+        .booking-id{font-size:.75rem;color:#94a3b8;font-family:monospace}
+        .booking-customer{font-size:1.1rem;font-weight:600;color:#1e293b}
+        .booking-status{padding:.375rem .75rem;border-radius:2rem;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+        .status-pending{background:#fef3c7;color:#92400e}
+        .status-assigned{background:#dbeafe;color:#1d4ed8}
+        .status-in_progress{background:#ede9fe;color:#6d28d9}
+        .status-completed{background:#d1fae5;color:#047857}
+        .status-cancelled{background:#fee2e2;color:#dc2626}
+        .booking-body{padding:1.25rem}
+        .info-row{display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid #f1f5f9}
+        .info-row:last-child{border-bottom:none}
+        .info-icon{width:32px;height:32px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#64748b}
+        .info-label{font-size:.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+        .info-value{font-size:.9rem;color:#1e293b;font-weight:500}
+        .assign-section{background:#f8fafc;padding:1.25rem;border-top:1px solid #e2e8f0}
+        .assign-title{font-size:.75rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem}
+        .material-section{margin-top:1rem;padding-top:1rem;border-top:1px dashed #e2e8f0}
+        .material-item{display:flex;align-items:center;gap:.75rem;padding:.625rem;background:white;border-radius:.5rem;border:1px solid #e2e8f0;margin-bottom:.5rem}
+        .material-item input[type="checkbox"]{width:18px;height:18px;accent-color:#3b82f6}
+        .material-name{font-size:.875rem;font-weight:500;color:#1e293b}
+        .material-stock{font-size:.75rem;color:#94a3b8}
+        .material-qty{width:60px;padding:.375rem;border:1px solid #e2e8f0;border-radius:.375rem;text-align:center}
+        .btn-action{padding:.5rem 1rem;font-size:.8rem;font-weight:600;border-radius:.5rem;border:none}
+        .btn-assign{background:linear-gradient(135deg,#3b82f6,#2563eb);color:white}
+        .btn-start{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white}
+        .btn-complete{background:linear-gradient(135deg,#10b981,#059669);color:white}
+        .btn-cancel{background:#f1f5f9;color:#64748b}
+        .used-materials{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:.75rem;padding:1rem;margin-top:1rem}
+        .used-materials-title{font-size:.7rem;font-weight:600;color:#047857;text-transform:uppercase;margin-bottom:.5rem}
+        .empty-state{text-align:center;padding:4rem 2rem;background:white;border-radius:1rem;color:#94a3b8}
+        .empty-state i{font-size:3rem;margin-bottom:1rem;opacity:.5}
+        @media(max-width:991px){.main-content{margin-left:0}}
+        @media(max-width:767px){.stat-card{margin-bottom:1rem}}
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="sidebar-header">
+                <a href="../index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12"/><path d="M12 16v4"/></svg></div>
+                    <div class="sidebar-logo-text"><span class="sidebar-logo-title">Nala Aircon</span><span class="sidebar-logo-subtitle">Management System</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><span class="nav-section-title">Menu Utama</span>
+                    <ul><li class="nav-item"><a href="../index.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-text">Dashboard</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Modul</span>
+                    <ul>
+                        <li class="nav-item"><a href="freshmo.html" class="nav-link active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Freshmo</span></a></li>
+                        <li class="nav-item"><a href="financing.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="nav-text">Financing</span></a></li>
+                        <li class="nav-item"><a href="inventory.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span class="nav-text">Inventory</span></a></li>
+                        <li class="nav-item"><a href="absensi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="nav-text">Absensi</span></a></li>
+                        <li class="nav-item"><a href="database.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span><span class="nav-text">Database</span></a></li>
+                        <li class="nav-item"><a href="kpi.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-text">KPI</span></a></li>
+                        <li class="nav-item"><a href="marketplace.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span><span class="nav-text">Marketplace</span></a></li>
+                    </ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Laporan</span>
+                    <ul><li class="nav-item"><a href="reports.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="nav-text">Laporan</span></a></li></ul>
+                </div>
+                <div class="nav-section"><span class="nav-section-title">Pengaturan</span>
+                    <ul><li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="nav-text">Pengaturan</span></a></li></ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-user-avatar">AD</div><div class="sidebar-user-info"><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Admin</span></div></div></div>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="p-4">
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1><i class="bi bi-clipboard-check me-2"></i>Freshmo</h1>
+                            <p>Kelola booking service • Auto-sync KPI & Inventory</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-light" onclick="loadBookings()"><i class="bi bi-arrow-clockwise"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card pending">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="stat-value" id="statPending">0</div>
+                                    <div class="stat-label">Menunggu</div>
+                                </div>
+                                <div class="stat-icon pending"><i class="bi bi-hourglass-split"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card assigned">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="stat-value" id="statAssigned">0</div>
+                                    <div class="stat-label">Ditugaskan</div>
+                                </div>
+                                <div class="stat-icon assigned"><i class="bi bi-person-check"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card progress">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="stat-value" id="statProgress">0</div>
+                                    <div class="stat-label">Dikerjakan</div>
+                                </div>
+                                <div class="stat-icon progress"><i class="bi bi-gear"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card completed">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="stat-value" id="statCompleted">0</div>
+                                    <div class="stat-label">Selesai Hari Ini</div>
+                                </div>
+                                <div class="stat-icon completed"><i class="bi bi-check-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter & Tabs -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <nav class="filter-tabs nav">
+                                <a class="nav-link active" href="#" data-status="all">Semua <span class="badge bg-secondary ms-1" id="countAll">0</span></a>
+                                <a class="nav-link" href="#" data-status="pending">Menunggu <span class="badge bg-warning ms-1" id="countPending">0</span></a>
+                                <a class="nav-link" href="#" data-status="assigned">Ditugaskan <span class="badge bg-primary ms-1" id="countAssigned">0</span></a>
+                                <a class="nav-link" href="#" data-status="in_progress">Dikerjakan <span class="badge bg-purple ms-1" id="countProgress">0</span></a>
+                                <a class="nav-link" href="#" data-status="completed">Selesai <span class="badge bg-success ms-1" id="countCompleted">0</span></a>
+                            </nav>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="date" class="form-control form-control-sm" id="filterDate" style="width:auto" onchange="filterByDate()">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="clearFilter()">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Grid -->
+                <div class="row g-4" id="bookingGrid">
+                    <div class="col-12"><div class="empty-state"><i class="bi bi-inbox"></i><h5>Memuat data...</h5></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+    let bookings=[], employees=[], inventory=[], currentFilter='all', currentDate=null;
+
+    document.addEventListener('DOMContentLoaded', async()=>{
+        document.querySelectorAll('.filter-tabs .nav-link').forEach(tab=>{
+            tab.onclick=(e)=>{
+                e.preventDefault();
+                document.querySelectorAll('.filter-tabs .nav-link').forEach(t=>t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter=tab.dataset.status;
+                renderBookings();
+            };
+        });
+        await loadBookings();
+    });
+
+    async function loadBookings(){
+        try{
+            [bookings, employees, inventory] = await Promise.all([db.bookings.getAll(), db.employees.getAll(), db.inventory.getAll()]);
+            updateStats();
+            renderBookings();
+        }catch(e){console.error(e);toast('Gagal memuat data','danger');}
+    }
+
+    function clearFilter(){currentDate=null;document.getElementById('filterDate').value='';renderBookings();}
+    function filterByDate(){currentDate=document.getElementById('filterDate').value;renderBookings();}
+
+    function toast(msg,type='primary'){
+        const html=`<div class="toast show align-items-center text-white bg-${type} border-0" role="alert">
+            <div class="d-flex"><div class="toast-body">${msg}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+        document.getElementById('toastContainer').insertAdjacentHTML('beforeend',html);
+        setTimeout(()=>document.querySelector('.toast')?.remove(),3000);
+    }
+
+    function updateStats(){
+        const today=new Date().toISOString().split('T')[0];
+        document.getElementById('statPending').textContent=bookings.filter(b=>b.status==='pending').length;
+        document.getElementById('statAssigned').textContent=bookings.filter(b=>b.status==='assigned').length;
+        document.getElementById('statProgress').textContent=bookings.filter(b=>b.status==='in_progress').length;
+        document.getElementById('statCompleted').textContent=bookings.filter(b=>b.status==='completed'&&b.completed_at?.startsWith(today)).length;
+        document.getElementById('countAll').textContent=bookings.length;
+        document.getElementById('countPending').textContent=bookings.filter(b=>b.status==='pending').length;
+        document.getElementById('countAssigned').textContent=bookings.filter(b=>b.status==='assigned').length;
+        document.getElementById('countProgress').textContent=bookings.filter(b=>b.status==='in_progress').length;
+        document.getElementById('countCompleted').textContent=bookings.filter(b=>b.status==='completed').length;
+    }
+
+    function renderBookings(){
+        const grid=document.getElementById('bookingGrid');
+        let list=currentFilter==='all'?bookings:bookings.filter(b=>b.status===currentFilter);
+        if(currentDate)list=list.filter(b=>b.service_date===currentDate);
+        list.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        
+        if(!list.length){
+            grid.innerHTML='<div class="col-12"><div class="empty-state"><i class="bi bi-inbox"></i><h5>Tidak ada booking</h5><p>Belum ada data untuk filter ini</p></div></div>';
+            return;
+        }
+        grid.innerHTML=list.map(b=>`<div class="col-md-6 col-xl-4">${renderCard(b)}</div>`).join('');
+    }
+
+    function renderCard(b){
+        const labels={pending:'Menunggu',assigned:'Ditugaskan',in_progress:'Dikerjakan',completed:'Selesai',cancelled:'Dibatalkan'};
+        const techs=employees.filter(e=>e.level==='teknisi'||e.level==='junior_teknisi'||e.level==='Teknisi');
+        const helps=employees.filter(e=>e.level==='helper'||e.level==='junior_teknisi'||e.level==='Helper');
+        const techOpts=techs.map(e=>`<option value="${e.id}"${b.technician_id===e.id?' selected':''}>${e.name}</option>`).join('');
+        const helpOpts=helps.map(e=>`<option value="${e.id}"${b.helper_id===e.id?' selected':''}>${e.name}</option>`).join('');
+        const techName=employees.find(e=>e.id===b.technician_id)?.name||'-';
+
+        let matHTML='';
+        if(b.status==='in_progress'){
+            const mats=inventory.filter(i=>i.quantity>0);
+            matHTML=`<div class="material-section"><div class="assign-title"><i class="bi bi-box-seam me-1"></i>Material Terpakai</div>
+            <div style="max-height:150px;overflow-y:auto">${mats.map(m=>`<div class="material-item">
+                <input type="checkbox" id="chk_${b.id}_${m.id}" data-id="${m.id}" data-name="${m.name}">
+                <div class="flex-grow-1"><div class="material-name">${m.name}</div><div class="material-stock">Stok: ${m.quantity} ${m.unit||'pcs'}</div></div>
+                <input type="number" class="material-qty" id="qty_${b.id}_${m.id}" min="1" max="${m.quantity}" value="1" style="display:none">
+            </div>`).join('')}</div></div>`;
+        }
+
+        let usedHTML='';
+        if(b.status==='completed'&&b.used_materials){
+            try{
+                const used=typeof b.used_materials==='string'?JSON.parse(b.used_materials):b.used_materials;
+                if(used?.length){
+                    usedHTML=`<div class="used-materials"><div class="used-materials-title"><i class="bi bi-box-seam me-1"></i>Material Terpakai</div>
+                    ${used.map(m=>`<div>• ${m.name}: ${m.quantity} ${m.unit||'pcs'}</div>`).join('')}</div>`;
+                }
+            }catch(e){}
+        }
+
+        let btns='';
+        if(b.status==='pending')btns=`<button class="btn btn-action btn-assign flex-grow-1" onclick="assignBooking('${b.id}')"><i class="bi bi-check-lg me-1"></i>Tugaskan</button><button class="btn btn-action btn-cancel" onclick="cancelBooking('${b.id}')"><i class="bi bi-x-lg"></i></button>`;
+        else if(b.status==='assigned')btns=`<button class="btn btn-action btn-start w-100" onclick="startBooking('${b.id}')"><i class="bi bi-play-fill me-1"></i>Mulai Kerjakan</button>`;
+        else if(b.status==='in_progress')btns=`<button class="btn btn-action btn-complete w-100" onclick="completeBooking('${b.id}')"><i class="bi bi-check-circle me-1"></i>Selesai & Sync</button>`;
+
+        return `<div class="booking-card">
+            <div class="booking-header d-flex justify-content-between align-items-start">
+                <div><div class="booking-id">#${b.id.substring(0,8).toUpperCase()}</div><div class="booking-customer">${b.customer_name}</div></div>
+                <span class="booking-status status-${b.status}">${labels[b.status]}</span>
+            </div>
+            <div class="booking-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="info-row"><div class="info-icon"><i class="bi bi-calendar3"></i></div><div><div class="info-label">Tanggal</div><div class="info-value">${formatDate(b.service_date)}</div></div></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-row"><div class="info-icon"><i class="bi bi-clock"></i></div><div><div class="info-label">Waktu</div><div class="info-value">${b.service_time}</div></div></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-row"><div class="info-icon"><i class="bi bi-telephone"></i></div><div><div class="info-label">Phone</div><div class="info-value">${b.customer_phone}</div></div></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-row"><div class="info-icon"><i class="bi bi-tools"></i></div><div><div class="info-label">Layanan</div><div class="info-value">${b.service_type}</div></div></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-row"><div class="info-icon"><i class="bi bi-snow"></i></div><div><div class="info-label">Unit</div><div class="info-value">${b.unit_count} unit</div></div></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-row"><div class="info-icon"><i class="bi bi-person"></i></div><div><div class="info-label">Teknisi</div><div class="info-value">${techName}</div></div></div>
+                    </div>
+                </div>
+                <div class="info-row"><div class="info-icon"><i class="bi bi-geo-alt"></i></div><div><div class="info-label">Alamat</div><div class="info-value">${b.address}</div></div></div>
+                ${b.notes?`<div class="alert alert-light mt-3 mb-0 py-2 px-3" style="font-size:.85rem"><strong>Catatan:</strong> ${b.notes}</div>`:''}
+                ${usedHTML}
+            </div>
+            <div class="assign-section">
+                <div class="assign-title"><i class="bi bi-people me-1"></i>Penugasan</div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6"><label class="form-label small text-muted mb-1">Teknisi</label><select class="form-select form-select-sm" id="tech_${b.id}" onchange="updateAssign('${b.id}','tech')"><option value="">-- Pilih --</option>${techOpts}</select></div>
+                    <div class="col-6"><label class="form-label small text-muted mb-1">Helper</label><select class="form-select form-select-sm" id="help_${b.id}" onchange="updateAssign('${b.id}','help')"><option value="">-- Pilih --</option>${helpOpts}</select></div>
+                </div>
+                ${matHTML}
+                ${btns?`<div class="d-flex gap-2 mt-3">${btns}</div>`:''}
+            </div>
+        </div>`;
+    }
+
+    document.addEventListener('change',e=>{
+        if(e.target.type==='checkbox'&&e.target.id.startsWith('chk_')){
+            const qtyEl=document.getElementById(e.target.id.replace('chk_','qty_'));
+            if(qtyEl)qtyEl.style.display=e.target.checked?'block':'none';
+        }
+    });
+
+    function getMaterials(bid){
+        const mats=[];
+        document.querySelectorAll(`[id^="chk_${bid}_"]:checked`).forEach(chk=>{
+            const id=chk.dataset.id,name=chk.dataset.name;
+            const qty=parseInt(document.getElementById(chk.id.replace('chk_','qty_'))?.value)||1;
+            const item=inventory.find(i=>i.id===id);
+            if(item&&qty>0)mats.push({inventory_id:id,name:name,quantity:qty,unit:item.unit||'pcs'});
+        });
+        return mats;
+    }
+
+    async function updateAssign(bid,type){
+        const sel=document.getElementById(type==='tech'?`tech_${bid}`:`help_${bid}`);
+        try{
+            await db.bookings.update(bid,type==='tech'?{technician_id:sel.value||null}:{helper_id:sel.value||null});
+            const b=bookings.find(x=>x.id===bid);
+            if(b){if(type==='tech')b.technician_id=sel.value;else b.helper_id=sel.value;}
+            toast('Penugasan diperbarui','success');
+        }catch(e){toast('Gagal update','danger');}
+    }
+
+    async function assignBooking(bid){
+        if(!document.getElementById(`tech_${bid}`).value){toast('Pilih teknisi terlebih dahulu','warning');return;}
+        try{
+            await db.bookings.update(bid,{status:'assigned',assigned_at:new Date().toISOString()});
+            toast('Booking berhasil ditugaskan','success');await loadBookings();
+        }catch(e){toast('Gagal menugaskan','danger');}
+    }
+
+    async function startBooking(bid){
+        try{
+            await db.bookings.update(bid,{status:'in_progress',started_at:new Date().toISOString()});
+            toast('Pekerjaan dimulai','success');await loadBookings();
+        }catch(e){toast('Gagal memulai','danger');}
+    }
+
+    // Service types for income categorization
+    const SERVICE_TYPES = [
+        { id: 'cuci_ac', name: 'Cuci AC', icon: '🧹' },
+        { id: 'service_ac', name: 'Service AC', icon: '🔧' },
+        { id: 'isi_freon', name: 'Isi Freon', icon: '❄️' },
+        { id: 'pasang_baru', name: 'Pasang Baru', icon: '🆕' },
+        { id: 'bongkar_pasang', name: 'Bongkar Pasang', icon: '🔄' },
+        { id: 'perbaikan', name: 'Perbaikan/Repair', icon: '🛠️' },
+        { id: 'maintenance', name: 'Maintenance Rutin', icon: '📋' },
+        { id: 'lainnya', name: 'Lainnya', icon: '📦' }
+    ];
+
+    let currentCompleteBookingId = null;
+
+    function completeBooking(bid){
+        const b = bookings.find(x=>x.id===bid);
+        if(!b.technician_id){toast('Pilih teknisi terlebih dahulu','warning');return;}
+        
+        currentCompleteBookingId = bid;
+        const mats = getMaterials(bid);
+        const tech = employees.find(e=>e.id===b.technician_id);
+        const helper = b.helper_id ? employees.find(e=>e.id===b.helper_id) : null;
+        
+        // Build service type options
+        const serviceOpts = SERVICE_TYPES.map(s => 
+            `<option value="${s.id}" ${b.service_type?.toLowerCase().includes(s.id.replace('_',' '))?'selected':''}>${s.icon} ${s.name}</option>`
+        ).join('');
+        
+        const modalHTML = `
+        <div class="modal fade" id="completeModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Selesaikan Booking</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info mb-3">
+                            <strong>${b.customer_name}</strong><br>
+                            <small>${b.service_type} • ${b.address}</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Jenis Jasa *</label>
+                            <select class="form-select" id="completeServiceType" required>
+                                <option value="">Pilih Jenis Jasa</option>
+                                ${serviceOpts}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Pendapatan (Rp) *</label>
+                            <input type="number" class="form-control form-control-lg" id="completeAmount" placeholder="0" required>
+                            <div class="form-text">Total yang dibayar customer</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Keterangan</label>
+                            <textarea class="form-control" id="completeNotes" rows="2" placeholder="Catatan tambahan...">${b.notes || ''}</textarea>
+                        </div>
+                        
+                        <hr>
+                        <div class="small text-muted">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Teknisi:</span>
+                                <strong>${tech?.name || '-'}</strong>
+                            </div>
+                            ${helper ? `<div class="d-flex justify-content-between mb-1"><span>Helper:</span><strong>${helper.name}</strong></div>` : ''}
+                            ${mats.length ? `<div class="d-flex justify-content-between mb-1"><span>Material:</span><strong>${mats.length} item</strong></div>` : ''}
+                        </div>
+                        
+                        <div class="alert alert-success mt-3 mb-0">
+                            <small>
+                                ✅ KPI teknisi${helper?' & helper':''} akan tercatat otomatis<br>
+                                ${mats.length ? '✅ Stok material akan berkurang<br>' : ''}
+                                ✅ Customer akan disimpan ke database<br>
+                                ✅ Pendapatan masuk ke Financing
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-success" onclick="submitCompleteBooking()">
+                            <i class="bi bi-check-lg me-1"></i>Selesaikan & Simpan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        
+        // Remove existing modal if any
+        document.getElementById('completeModal')?.remove();
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        const modal = new bootstrap.Modal(document.getElementById('completeModal'));
+        modal.show();
+    }
+
+    async function submitCompleteBooking(){
+        const bid = currentCompleteBookingId;
+        const b = bookings.find(x=>x.id===bid);
+        if(!b) return;
+        
+        const serviceType = document.getElementById('completeServiceType').value;
+        const amount = parseFloat(document.getElementById('completeAmount').value) || 0;
+        const notes = document.getElementById('completeNotes').value;
+        
+        if(!serviceType){toast('Pilih jenis jasa','warning');return;}
+        if(amount <= 0){toast('Masukkan jumlah pendapatan','warning');return;}
+        
+        const mats = getMaterials(bid);
+        const tech = employees.find(e=>e.id===b.technician_id);
+        const helper = b.helper_id ? employees.find(e=>e.id===b.helper_id) : null;
+        
+        try{
+            console.log('=== COMPLETING BOOKING ===');
+            
+            // 1. Update booking status
+            console.log('1. Updating booking...');
+            await db.bookings.update(bid, {
+                status: 'completed',
+                completed_at: new Date().toISOString(),
+                used_materials: mats.length ? JSON.stringify(mats) : null,
+                final_amount: amount,
+                final_service_type: serviceType,
+                completion_notes: notes
+            });
+            console.log('Booking updated OK');
+            
+            // 2. Save income to financing
+            console.log('2. Saving income...');
+            const incomeData = {
+                booking_id: bid,
+                amount: amount,
+                service_type: serviceType,
+                customer_name: b.customer_name,
+                customer_phone: b.customer_phone,
+                technician_id: b.technician_id,
+                technician_name: tech?.name || null,
+                helper_id: b.helper_id || null,
+                helper_name: helper?.name || null,
+                description: notes || `${SERVICE_TYPES.find(s=>s.id===serviceType)?.name || serviceType} - ${b.customer_name}`,
+                date: new Date().toISOString().split('T')[0],
+                branch: tech?.branch || 'makassar'
+            };
+            console.log('Income data:', incomeData);
+            
+            try {
+                const result = await db.income.create(incomeData);
+                console.log('Income saved OK:', result);
+            } catch(incomeErr) {
+                console.error('ERROR saving income:', incomeErr);
+                toast('Warning: Pendapatan gagal disimpan - ' + incomeErr.message, 'warning');
+            }
+            
+            // 3. Reduce inventory
+            for(const m of mats){
+                try{
+                    const item = inventory.find(i=>i.id===m.inventory_id);
+                    if(item){
+                        await db.inventory.update(m.inventory_id, {
+                            quantity: Math.max(0, (item.quantity||0) - m.quantity)
+                        });
+                    }
+                }catch(e){console.error('Inventory update error:', e);}
+            }
+            
+            // 4. Save customer if new
+            try{
+                const custs = await db.customers.getAll();
+                if(!custs.some(c=>c.phone===b.customer_phone)){
+                    await db.customers.create({
+                        name: b.customer_name,
+                        type: 'perorangan',
+                        phone: b.customer_phone,
+                        address: b.address,
+                        notes: `Freshmo - ${serviceType}`
+                    });
+                }
+            }catch(e){}
+            
+            // Close modal and refresh
+            bootstrap.Modal.getInstance(document.getElementById('completeModal'))?.hide();
+            document.getElementById('completeModal')?.remove();
+            
+            toast(`Booking selesai! Pendapatan Rp ${amount.toLocaleString('id')} tercatat`, 'success');
+            await loadBookings();
+            
+        }catch(e){
+            console.error(e);
+            toast('Error: '+e.message,'danger');
+        }
+    }
+
+    async function cancelBooking(bid){
+        if(!confirm('Batalkan booking ini?'))return;
+        try{
+            await db.bookings.update(bid,{status:'cancelled',cancelled_at:new Date().toISOString()});
+            toast('Booking dibatalkan','success');await loadBookings();
+        }catch(e){toast('Gagal membatalkan','danger');}
+    }
+    </script>
+</body>
+</html>
